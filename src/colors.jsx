@@ -15,6 +15,14 @@ const theme = createTheme({
       "#8300cb",
       "#7200b2",
     ],
+    cyan: [
+      "#1cb4b5",
+      "#6ec3c1",
+      "#96cfc3",
+      "#afd8c5",
+      "#c1dfc6",
+      "#003e3e"
+    ]
   },
 });
 
