@@ -1,7 +1,9 @@
 import React from 'react'
 
+import { AlarmClock, SquarePlus } from 'lucide-react';
+
 import {
-  Grid, Box, Image, Text, Title, useMantineTheme, Group
+  Grid, Box, Image, Text, Title, useMantineTheme, Group, Container
 } from '@mantine/core';
 
 const mockdata = [
@@ -43,7 +45,24 @@ function Pilltaker() {
     <Grid justify="center" align="flex-start">
       
       <Grid.Col span={{ base: 11,xxs: 11, xs: 11, sm: 11, md: 11, lg: 11, xl: 8}}>
-      <Group justify="center" gap="sm">{pills}</Group>
+        <Group justify="center" gap="sm">
+          <Box bg="red.5" w={{ base: '440',xxs: '440', xs: '440', sm: '440', md: '892', lg: '892', xl: '892'}} h='50'>
+            <Group justify="space-between">
+              <Title>Name of pilltaker</Title>
+              <Group justify="flex-end" gap="xs">
+                <AlarmClock size={40}/>
+                <SquarePlus size={40}/>
+              </Group>
+            </Group>
+          </Box>
+          {pills}
+        </Group>
+      </Grid.Col>
+      <Grid.Col span={{ base: 11,xxs: 11, xs: 11, sm: 11, md: 11, lg: 11, xl: 8}}>
+        <Group justify="center" gap="sm">
+          Tady bude seznam všech dávek
+        </Group>
+        
       </Grid.Col>
     </Grid>
   )
