@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Pilltaker from "./pages/Pilltaker";
 import Register from "./pages/Register"
-import Intriuduction from "./pages/Intriuduction";
+import Introduction from "./pages/Introduction";
 
 import NavBar from "./components/NavBar/NavBar";
 
@@ -13,7 +13,7 @@ function App() {
     <div>
       <NavBar></NavBar>
       <Routes>
-          <Route path="/" element={<Intriuduction />} />
+          <Route path="/" element={<Introduction />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />

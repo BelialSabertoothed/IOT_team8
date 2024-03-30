@@ -1,10 +1,9 @@
 import React from 'react'
-
 import { AlarmClock, SquarePlus } from 'lucide-react';
-
 import {
   Grid, Box, Image, Text, Title, useMantineTheme, Group, Container
 } from '@mantine/core';
+import CreateMedicine from '../components/Medicine/createMedicine';
 
 const mockdata = [
   { name: 'Paralen', color: 'violet'},
@@ -51,7 +50,8 @@ function Pilltaker() {
               <Title>Name of pilltaker</Title>
               <Group justify="flex-end" gap="xs">
                 <AlarmClock size={40}/>
-                <SquarePlus size={40}/>
+                {/* <SquarePlus size={40}/> */}
+                <CreateMedicine/>
               </Group>
             </Group>
           </Box>
