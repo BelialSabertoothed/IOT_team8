@@ -1,16 +1,24 @@
-import { Button, Slider } from "@mantine/core";
+import { Routes, Route, Outlet, Link } from "react-router-dom";
+
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Pilltaker from "./pages/Pilltaker";
+import Register from "./pages/Register"
+import Introduction from "./pages/Introduction";
+
+import NavBar from "./components/NavBar/NavBar";
 
 function App() {
   return (
     <div>
-      <Slider
-        marks={[
-          { value: 20, label: "20%" },
-          { value: 50, label: "50%" },
-          { value: 80, label: "80%" },
-        ]}
-      />
-      <Button variant="filled">Button</Button>
+      <NavBar></NavBar>
+      <Routes>
+          <Route path="/" element={<Introduction />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/pilltaker" element={<Pilltaker />} />
+      </Routes>
     </div>
   );
 }
