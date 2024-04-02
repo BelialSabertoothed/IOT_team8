@@ -22,6 +22,18 @@ const theme = createTheme({
       "#afd8c5",
       "#c1dfc6",
       "#003e3e"
+    ],
+    green: [
+      "#e6ffe5",
+      "#d0ffcd",
+      "#a1ff9b",
+      "#6fff64",
+      "#45ff38",
+      "#2bff1c",
+      "#1aff09",
+      "#05e300",
+      "#00c900",
+      "#00ae00"
     ]
   },
 });

@@ -29,7 +29,7 @@ function NavBar() {
       <header className={classes.header}>
         <Group justify="space-between" h="100%">
         <Link to="/" style={{ textDecoration: 'none' }}>
-          <div style={{display: "flex", alignItems: "center", gap: "5px"}}>
+          <div style={{ color: theme.primaryColor[0] ,display: "flex", alignItems: "center", gap: "5px"}}>
             <Pill size={30} ></Pill>
             <Title order={2}>Pills4U</Title>
           </div>

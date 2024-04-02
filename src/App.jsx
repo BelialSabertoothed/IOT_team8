@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Pilltaker from "./pages/Pilltaker";
 import Register from "./pages/Register"
-import Introduction from "./pages/Introduction";
+import Introduction from "./pages/Intriuduction";
 
 import NavBar from "./components/NavBar/NavBar";
 
