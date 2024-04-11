@@ -21,7 +21,7 @@ export function HeroHedder() {
             Your <span className={classes.highlight}>Personal</span>  <br />{" "}
             Meds Reminder
           </Title>
-          <Text c="dimmed" mt="md">
+          <Text c="dimmed" mt="md" maw={400}>
             Never miss a dose again with Pills4U, the innovative IoT device engineered to keep you on track with your medication regimen.
           </Text>
 
@@ -63,6 +63,14 @@ export function HeroHedder() {
             </Button> */}
           </Group>
         </div>
+        <Image
+          visibleFrom="md"
+          src={"../../pictures/pills4u2.png"}
+          h={400}
+          w={500}
+          fit="contain"
+          fallbackSrc="https://placehold.co/600x400?text=Placeholder"
+        />
       </div>
     </Container>
   );
