@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { IconX, IconCheck } from '@tabler/icons-react';
 import { TextInput, Checkbox, Button, Group, Box, Title, PasswordInput, Progress, Text, Popover, rem } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import sendToServer from '../utils/SendToServer';
 
 //Password functions
 function PasswordRequirement({ meets, label }) {
@@ -61,26 +62,35 @@ function Register() {
     },
   });
 
+  const handleSubmit = async (values) => {
+    values.password = password;
+    delete values.termsOfService;
+
+    const result = await sendToServer(`/user/register`, values);
+    if (result) {
+      console.log(result);
+    }
+  }
+
   //Password const
   const [popoverOpened, setPopoverOpened] = useState(false);
-  const [value, setValue] = useState('');
+  const [password, setPassword] = useState('');
   const checks = requirements.map((requirement, index) => (
-    <PasswordRequirement key={index} label={requirement.label} meets={requirement.re.test(value)} />
+    <PasswordRequirement key={index} label={requirement.label} meets={requirement.re.test(password)} />
   ));
-  const strength = getStrength(value);
+  const strength = getStrength(password);
   const color = strength === 100 ? 'teal' : strength > 50 ? 'yellow' : 'red';
 
   return (
     <Box maw={340} mx="auto">
-      <Title mb={10} mt={20} order={3}>Sing up</Title>
-      <form onSubmit={form.onSubmit((values) => setNewUser(JSON.stringify(values, null, 2)))}>
+      <Title mb={10} mt={20} order={3}>Sign up</Title>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
           withAsterisk
           label="Email"
           placeholder="your@email.com"
           {...form.getInputProps('email')}
         />
-        
         <TextInput
           withAsterisk
           label="First name"
@@ -105,14 +115,14 @@ function Register() {
                 withAsterisk
                 label="Your password"
                 placeholder="Your password"
-                value={value}
-                onChange={(event) => setValue(event.currentTarget.value)}
+                value={password}
+                onChange={(event) => setPassword(event.currentTarget.value)}
               />
             </div>
           </Popover.Target>
           <Popover.Dropdown>
             <Progress color={color} value={strength} size={5} mb="xs" />
-            <PasswordRequirement label="Includes at least 6 characters" meets={value.length > 5} />
+            <PasswordRequirement label="Includes at least 6 characters" meets={password.length > 5} />
             {checks}
           </Popover.Dropdown>
         </Popover>

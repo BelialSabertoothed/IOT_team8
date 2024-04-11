@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Card, Grid, Modal, Button, Box, TextInput, Group } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { Plus } from 'lucide-react';
+import sendToServer from '../../utils/SendToServer';
 
 function CreateMedsTaker(props) {
   const [open, setOpen] = useState(false);
@@ -20,7 +21,7 @@ function CreateMedsTaker(props) {
   });
 
   async function handlSubmit(content){
-    const response = await fetch("http://localhost:3001/medsTaker/create", 
+    /*const response = await fetch("http://localhost:3001/medsTaker/create", 
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,6 +29,12 @@ function CreateMedsTaker(props) {
       }
     );
     if (response.status == 200){
+      setOpen(false)
+      props.refreshData()
+    }*/
+
+    const result = await sendToServer(`/medsTaker/create`, content);
+    if (result) {
       setOpen(false)
       props.refreshData()
     }

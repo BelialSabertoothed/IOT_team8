@@ -1,10 +1,18 @@
 import React from 'react'
 import useFetch from "../useFetch";
+import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
 import { Loader, Card, Grid, Text, Avatar} from '@mantine/core';
 
 function Home() {
-  const [MedsTakers, MedsTakersPending, MedsTakersError, MedsTakersRefresh] = useFetch('http://localhost:3001/medsTaker/list');
+  //const [MedsTakers, MedsTakersPending, MedsTakersError, MedsTakersRefresh] = useFetch('http://localhost:3001/medsTaker/list');
+  const {
+    isLoading: MedsTakersPending,
+    data: MedsTakers,
+    isError: MedsTakersError,
+    refetch: MedsTakersRefresh
+  } = useAxiosFetch(`/medsTaker/list`);
+
   const refreshData = () => {MedsTakersRefresh();};
   console.log("MedsTakers:",MedsTakers)
   console.log("MedsTakersPending:",MedsTakersPending)
