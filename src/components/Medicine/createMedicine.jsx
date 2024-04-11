@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button, Box, TextInput, Group, Input } from '@mantine/core';
+import { Modal, Button, Box, TextInput, Group, Input, NumberInput } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { IconChevronDown } from '@tabler/icons-react';
@@ -19,7 +19,7 @@ function CreateMedicine() {
     validate: {
       medicineName: (value) => (/[a-z]/.test(value) ? null : 'Requested'),
       refill: (value) => (/[0-9]/.test(value) ? null : '[number]'),
-      amound: (value) => (/[0-9]/.test(value) ? null : '[number]'),
+      amount: (value) => (/[0-9]/.test(value) ? null : '[number]'),
     },
   });
 
@@ -43,21 +43,34 @@ function CreateMedicine() {
                 <Group>
                     <TimeInput
                         id='time1'
+                        w={150}
                         mt={20}
-                        label="Medicine harmonogram"
+                        label="Meds harmonogram"
                         withAsterisk
                         description={`1. dose`}
-                        error='Requested'
+                        /* error='Requested' */
                         timeSteps={{ minutes: 15 }}
-                        />
-                    <TextInput
-                        w={160}
-                        mb={-45}
-                        withAsterisk
-                        placeholder="Amount"
-                        mt={20}
-                        {...form.getInputProps('amound')}
                     />
+                    <NumberInput
+                      w={76}
+                      mb={-45}
+                      withAsterisk
+                      mt={20}
+                      placeholder="Amount"
+                      min={1}
+                      max={99}
+                      hideControls
+                      {...form.getInputProps('amount')}
+                    /> 
+                    <Input
+                      w={92}
+                      mb={-45}
+                      mt={20}
+                      ml={-10}
+                      placeholder={'unit'}
+                      disabled
+                      defaultValue={null}
+                    /> 
                 </Group>
                 <Input
                     component="select"
