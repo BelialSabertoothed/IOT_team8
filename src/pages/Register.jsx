@@ -44,7 +44,6 @@ function getStrength(password) {
 
 //Registration
 function Register() {
-  const [newUser, setNewUser] = useState('');
   const form = useForm({
     initialValues: {
       email: '',
@@ -68,7 +67,8 @@ function Register() {
 
     const result = await sendToServer(`/user/register`, values);
     if (result) {
-      console.log(result);
+      window.location.replace("/login");
+      alert('Registration  was successful')
     }
   }
 
@@ -83,7 +83,7 @@ function Register() {
 
   return (
     <Box maw={340} mx="auto">
-      <Title mb={10} mt={20} order={3}>Sign up</Title>
+      <Title mb={10} mt={50} order={3}>Sign up</Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
           withAsterisk
@@ -137,7 +137,6 @@ function Register() {
           <Button type='submit'>Submit</Button>
         </Group>
       </form>
-      <Text>{/* Pozdeji smazat */newUser}</Text>
     </Box>
   );
 }

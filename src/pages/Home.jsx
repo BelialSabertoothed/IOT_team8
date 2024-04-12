@@ -2,7 +2,7 @@ import React from 'react'
 import useFetch from "../useFetch";
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
-import { Loader, Card, Grid, Text, Avatar, Box, Title, Group} from '@mantine/core';
+import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image} from '@mantine/core';
 
 function Home() {
   //const [MedsTakers, MedsTakersPending, MedsTakersError, MedsTakersRefresh] = useFetch('http://localhost:3001/medsTaker/list');
@@ -24,16 +24,26 @@ function Home() {
       <Group justify="center">
         <Avatar size="xl"/>
         <Title>{MedsTaker.name}</Title>
-        {/* <Grid.Col span={12}><Text>+{MedsTaker.phone_country_code} {MedsTaker.phone_number}</Text></Grid.Col> */}
+        {/* <Text>+{MedsTaker.phone_country_code} {MedsTaker.phone_number}</Text> */}
       </Group> 
     </Card>
   ));
 
   if (MedsTakersPending) {return <Loader size={30} />;}
-  else if (MedsTakersError) {return (<div>ERROR</div>)}
+  else if (MedsTakersError) {return (
+  <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 500, md: 500, lg: 500, xl: 500}} mx="auto" mt={50}>
+    <Image
+      h={{ base: 272, xxs: 272, xs: 272, sm: 450, md: 450, lg: 450, xl: 450}}
+      w={{ base: 300, xxs: 300, xs: 300, sm: 500, md: 500, lg: 500, xl: 500}}
+      fit="contain"
+      radius={10}
+      fallbackSrc='https://i.pinimg.com/originals/5a/e4/9a/5ae49a02fc6d1281dd9267d679e6ba01.jpg'
+      />
+  </Box>
+  )}
   else return (  
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900}} mx="auto" mt={50}>
-      <Box w={{ base: '440',xxs: '440', xs: '440', sm: '440', md: '892', lg: '892', xl: '892'}} h='50'>
+      <Box w={{ base: 440,xxs: 440, xs: 440, sm: 440, md: 892, lg: 892, xl: 892}} h='50'>
           <Group justify="space-between">
             <Title>User.name</Title>
             <Group justify="flex-end" gap="xs">

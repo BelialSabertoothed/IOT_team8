@@ -4,29 +4,32 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import sendToServer from '../utils/SendToServer';
 
-//Sory furt to nefachá, kouknu na to zítra... zuzaf ok
-
 function Login() {
-  const [user, setUser] = useState('');
-  const form = useForm(
-  );
+  const form = useForm({
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+    },
+  });
 
   const [visible, { toggle }] = useDisclosure(false);
 
   const handleSubmit = async (values) => {
     const result = await sendToServer(`/user/login`, values);
     if (result) {
-      console.log(result);
+      window.location.replace("/Home");
+    }
+    else {
+      console.log('invalid email or pasword')
     }
   };
 
   return (
     <Box maw={340} mx="auto">
-      <Title mb={10} mt={20} order={3}>Log in</Title>
+      <Title mb={10} mt={50} order={3}>Log in</Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
           label="Email"
-          error="This email does not exist"
+          /* error={(errorEmail?"This email does not exist":null)} */
           {...form.getInputProps('email')}
         />
 
@@ -34,7 +37,7 @@ function Login() {
           label="Password"
           visible={visible}
           onVisibilityChange={toggle}
-          error="Invalid password"
+          /* error={(errorPassword?"Invalid password":null)} */
           {...form.getInputProps('password')}
         />
 
@@ -42,7 +45,6 @@ function Login() {
           <Button type="submit">Submit</Button>
         </Group>
       </form>
-      <Title>{/* Pozdeji smazat */user}</Title>
     </Box>
   );
 }

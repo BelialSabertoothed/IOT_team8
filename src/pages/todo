@@ -1,0 +1,27 @@
+Home
+    cards UI
+    modalni okno UI
+    user.name
+    error/modallogin
+
+Introduction
+    button get started
+
+Login
+    error handling
+
+Pilltaker
+    cards UI
+    doses
+    modal new medicine
+    modal set alarms (to nevim jak resi backend)
+    propojeni se serverem
+
+Register
+    alert
+    error handling
+
+NavBar
+    prepnuti talcitek uzivatele (pro prihlaseni profilovy obrazek a bez login...)
+    logout (neni na be)
+    home? (v pripade prihlaseneho uzivatele se na /home dostane kliknutim na logo?)
