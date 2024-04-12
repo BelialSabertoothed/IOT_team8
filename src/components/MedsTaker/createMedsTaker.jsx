@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Card, Grid, Modal, Button, Box, TextInput, Group } from '@mantine/core';
+import { Grid, Modal, Button, Box, TextInput, Group } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { Plus } from 'lucide-react';
+import { SquarePlus } from 'lucide-react';
 import sendToServer from '../../utils/SendToServer';
 
 function CreateMedsTaker(props) {
@@ -72,11 +72,9 @@ function CreateMedsTaker(props) {
         </Box>
       </Modal>
 
-      <Card w='200' h='100' key={"addMedsTakerCart"} withBorder={true} shadow="sm" component="button" onClick={() => setOpen(true)}>
-        <Grid justify="center" align="flex-start">
-          <Grid.Col span={5}><Plus size={50}></Plus></Grid.Col>
-        </Grid> 
-      </Card>
+      
+      <SquarePlus key={"addMedsTakerCart"} size={40} component="button" onClick={() => setOpen(true)}/>
+      
     </>
   );
 }

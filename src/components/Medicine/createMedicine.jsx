@@ -4,6 +4,7 @@ import { Modal, Button, Box, TextInput, Group, Input, NumberInput } from '@manti
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { IconChevronDown } from '@tabler/icons-react';
+import { SquarePlus } from 'lucide-react';
 
 function CreateMedicine() {
   const [opened, { open, close }] = useDisclosure(false);
@@ -91,7 +92,7 @@ function CreateMedicine() {
         </Box>
       </Modal>
 
-      <Button onClick={open}>Create medicine</Button>
+      <SquarePlus size={40} component="button" onClick={open}/>
     </>
   );
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import useFetch from "../useFetch";
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
-import { Loader, Card, Grid, Text, Avatar, Box, Title, Button} from '@mantine/core';
+import { Loader, Card, Grid, Text, Avatar, Box, Title, Group} from '@mantine/core';
 
 function Home() {
   //const [MedsTakers, MedsTakersPending, MedsTakersError, MedsTakersRefresh] = useFetch('http://localhost:3001/medsTaker/list');
@@ -21,11 +21,11 @@ function Home() {
   const addMedsTakerCart = <CreateMedsTaker refreshData={refreshData}></CreateMedsTaker>
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
     <Card w='290' h='200' mt={20} key={MedsTaker._id} withBorder={true} shadow="sm" component="a" href={"/pilltaker?"+MedsTaker._id}>
-      <Grid justify="center">
-        <Grid.Col span={4}><Avatar size="xl"/></Grid.Col>
-        <Grid.Col span={8}><Title>{MedsTaker.name}</Title></Grid.Col>
+      <Group justify="center">
+        <Avatar size="xl"/>
+        <Title>{MedsTaker.name}</Title>
         {/* <Grid.Col span={12}><Text>+{MedsTaker.phone_country_code} {MedsTaker.phone_number}</Text></Grid.Col> */}
-      </Grid> 
+      </Group> 
     </Card>
   ));
 
@@ -33,8 +33,16 @@ function Home() {
   else if (MedsTakersError) {return (<div>ERROR</div>)}
   else return (  
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900}} mx="auto" mt={50}>
+      <Box w={{ base: '440',xxs: '440', xs: '440', sm: '440', md: '892', lg: '892', xl: '892'}} h='50'>
+          <Group justify="space-between">
+            <Title>User.name</Title>
+            <Group justify="flex-end" gap="xs">
+              {addMedsTakerCart}
+            </Group>
+          </Group>
+        </Box>
       <Box mb={10}>
-        {addMedsTakerCart}
+        
       </Box>
       <Grid justify="space-between" align="flex-start">
         {medsTakersCarts}
