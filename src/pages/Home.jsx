@@ -24,7 +24,7 @@ function Home() {
       <Group justify="center">
         <Avatar size="xl"/>
         <Title>{MedsTaker.name}</Title>
-        {/* <Text>+{MedsTaker.phone_country_code} {MedsTaker.phone_number}</Text> */}
+        <Text>+{MedsTaker.phone_country_code} {MedsTaker.phone_number}</Text>
       </Group> 
     </Card>
   ));
