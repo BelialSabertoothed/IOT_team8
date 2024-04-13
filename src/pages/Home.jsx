@@ -10,6 +10,8 @@ function Home() {
     isLoading: MedsTakersPending,
     data: MedsTakers,
     isError: MedsTakersError,
+    errorStatus: errorStatus,
+    errorMessage: errorMessage,
     refetch: MedsTakersRefresh
   } = useAxiosFetch(`/medsTaker/list`);
 
@@ -17,10 +19,12 @@ function Home() {
   console.log("MedsTakers:",MedsTakers)
   console.log("MedsTakersPending:",MedsTakersPending)
   console.log("MedsTakersError:",MedsTakersError)
+  console.log("ErrorMessage:",errorMessage)
+  console.log("ErrorStatus:",errorStatus)
   
   const addMedsTakerCart = <CreateMedsTaker refreshData={refreshData}></CreateMedsTaker>
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
-    <Card w='290' h='200' mt={20} key={MedsTaker._id} withBorder={true} shadow="sm" component="a" href={"/pilltaker?"+MedsTaker._id}>
+    <Card w='290' h='200' mt={20} key={MedsTaker._id} style={{paddingBlock:'30px'}} withBorder={true} shadow="sm" component="a" href={"/pilltaker?"+MedsTaker._id}>
       <Group justify="center">
         <Avatar size="xl"/>
         <Title>{MedsTaker.name}</Title>
@@ -29,7 +33,7 @@ function Home() {
     </Card>
   ));
 
-  if (MedsTakersPending) {return <Loader size={30} />;}
+  if (MedsTakersPending) {return <Box maw={{ base: 30, xxs: 30, xs: 30, sm: 30, md: 30, lg: 30, xl: 30}} mx="auto" mt={50}><Loader size={30} color='vioet' /></Box>;}
   else if (MedsTakersError) {return (
   <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 500, md: 500, lg: 500, xl: 500}} mx="auto" mt={50}>
     <Image
@@ -39,6 +43,7 @@ function Home() {
       radius={10}
       fallbackSrc='https://i.pinimg.com/originals/5a/e4/9a/5ae49a02fc6d1281dd9267d679e6ba01.jpg'
       />
+      <Text>{errorMessage}</Text>
   </Box>
   )}
   else return (  

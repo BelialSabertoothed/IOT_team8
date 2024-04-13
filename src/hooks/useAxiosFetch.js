@@ -15,14 +15,14 @@ export default function useAxiosFetch(url) {
                     return {...state, isLoading: false, isError: false, data: action.payload};
                 }
                 case "ERROR": {
-                    return {...state, isLoading: false, isError: true};
+                    return {...state, isLoading: false, isError: true, errorStatus: action.error, errorMessage: action.errorText};
                 }
                 default: {
                     return state;
                 }
             }
         },
-        { isLoading: false, isError: false, data: null }
+        { isLoading: false, isError: false, data: null, errorStatus: null, errorMessage: null }
     );
 
     const fetchData = async () => {
@@ -33,10 +33,11 @@ export default function useAxiosFetch(url) {
 
             if (isMounted.current) {
                 dispatch({ type: "SUCCESS", payload: result.data });
+                console.log(result.data)
             }
         } catch (error) {
             if (isMounted.current) {
-                dispatch({ type: "ERROR" });
+                dispatch({ type: "ERROR", error: error.response.status, errorText: error.response?.data.message });
             }
         }
     };

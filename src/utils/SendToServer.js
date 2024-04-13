@@ -11,6 +11,7 @@ const sendToServer = async (url, data, setLoading, setErrorOpen, setErrorMessage
     } catch (e) {
         console.log(e);
         if (setErrorMessage) setErrorMessage(e.response?.data.message);
+        console.log(e.response?.data.message)
         if (setErrorOpen) setErrorOpen(true);
     }
     if (setLoading) setLoading(false);
