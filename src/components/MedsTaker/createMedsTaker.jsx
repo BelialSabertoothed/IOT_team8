@@ -68,7 +68,7 @@ function CreateMedsTaker(props) {
 
   return (
     <>
-      <Modal size={'lg'} opened={open} onClose={() => setOpen(false)} title="Create new meds taker">
+      <Modal size={'lg'} opened={open} onClose={() => setOpen(false)} title="Create new meds taker" centered>
         <Box maw={340} mx="auto">
             <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
                 <TextInput

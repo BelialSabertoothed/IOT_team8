@@ -25,3 +25,9 @@ NavBar
     prepnuti talcitek uzivatele (pro prihlaseni profilovy obrazek a bez login...)
     logout (neni na be)
     home? (v pripade prihlaseneho uzivatele se na /home dostane kliknutim na logo?)
+
+
+Other
+    error handeling
+    responsivity of texts
+    validation of text lenght
