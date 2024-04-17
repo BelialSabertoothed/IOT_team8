@@ -86,6 +86,8 @@ function Register() {
       <Title mb={10} mt={50} order={3}>Sign up</Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
+          maxLength={255}
+          minLength={6}
           withAsterisk
           label="Email"
           placeholder="your@email.com"
@@ -93,6 +95,8 @@ function Register() {
         />
         <TextInput
           withAsterisk
+          maxLength={255}
+          minLength={3}
           label="First name"
           placeholder="Jane"
           {...form.getInputProps('firstName')}
@@ -100,6 +104,8 @@ function Register() {
 
         <TextInput
           withAsterisk
+          maxLength={255}
+          minLength={3}
           label="Last name"
           placeholder="Doe"
           {...form.getInputProps('lastName')}

@@ -1,8 +1,8 @@
 Home
-    cards UI
-    modalni okno UI
+    long name display
+    pair error
     user.name
-    error/modallogin
+    form pair
 
 Introduction
     button get started
@@ -16,6 +16,7 @@ Pilltaker
     modal new medicine
     modal set alarms (to nevim jak resi backend)
     propojeni se serverem
+    backend zvisit mnozstvi medicine per refil (1000ml)?
 
 Register
     alert
@@ -23,7 +24,7 @@ Register
 
 NavBar
     prepnuti talcitek uzivatele (pro prihlaseni profilovy obrazek a bez login...)
-    logout (neni na be)
+    logout
     home? (v pripade prihlaseneho uzivatele se na /home dostane kliknutim na logo?)
 
 

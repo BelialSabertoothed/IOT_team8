@@ -2,8 +2,9 @@ import React from 'react'
 import useFetch from "../useFetch";
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
-import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image} from '@mantine/core';
+import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge} from '@mantine/core';
 import ModalLogin from '../components/Login/modalLogin';
+import {IconBatteryOff, IconFlame, IconAwardFilled} from '@tabler/icons-react'
 
 function Home() {
   //const [MedsTakers, MedsTakersPending, MedsTakersError, MedsTakersRefresh] = useFetch('http://localhost:3001/medsTaker/list');
@@ -25,12 +26,16 @@ function Home() {
   
   const addMedsTakerCart = <CreateMedsTaker refreshData={refreshData}></CreateMedsTaker>
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
-    <Card w='290' h='200' mt={20} key={MedsTaker._id} style={{paddingBlock:'30px'}} withBorder={true} shadow="sm" component="a" href={"/pilltaker?"+MedsTaker._id}>
-      <Group justify="center">
+    <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={"/pilltaker?"+MedsTaker._id}>
+      <Group justify="end" mt="md" mb="xs">
+        {(MedsTaker.phone_country_code === '420'?null:<IconBatteryOff style={{color: 'red'}}/>)}
+        <Badge>Taken</Badge>
+        
+      </Group>
+      <Group justify="start" pt={10}>
         <Avatar size="xl"/>
-        <Title>{MedsTaker.name}</Title>
-        <Text>+{MedsTaker.phone_country_code} {MedsTaker.phone_number}</Text>
-      </Group> 
+        <Title>{MedsTaker.name} {(MedsTaker.name.length === 4?<IconAwardFilled component='indicator'/>:null)}</Title>
+      </Group>
     </Card>
   ));
 
@@ -44,7 +49,7 @@ function Home() {
       radius={10}
       fallbackSrc='https://i.pinimg.com/originals/5a/e4/9a/5ae49a02fc6d1281dd9267d679e6ba01.jpg'
       />
-      <Text>{errorMessage} please<ModalLogin/></Text>
+      <Text>{errorMessage} please <ModalLogin/></Text>
       
   </Box>
   )}
