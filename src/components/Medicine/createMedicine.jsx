@@ -116,7 +116,7 @@ function CreateMedicine() {
                       hideControls
                       {...form.getInputProps('amount')}
                     />
-                    <ActionIcon size={35} mb={-20}>
+                    <ActionIcon  variant="light" size={35} mb={-20}>
                       <IconTrash component="button" onClick={console.log('nefunguju pomoc')}/* nefunguje koukni na to! onMouseEnter={console.log('ahoj')} *//>
                     </ActionIcon>
                 </Group>
