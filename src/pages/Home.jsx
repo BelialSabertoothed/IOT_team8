@@ -1,5 +1,4 @@
 import {React, useState} from 'react'
-import useFetch from "../useFetch";
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
 import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay} from '@mantine/core';
@@ -7,7 +6,6 @@ import ModalLogin from '../components/Login/modalLogin';
 import {IconBatteryOff, IconFlame, IconAwardFilled} from '@tabler/icons-react'
 
 function Home() {
-  //const [MedsTakers, MedsTakersPending, MedsTakersError, MedsTakersRefresh] = useFetch('http://localhost:3001/medsTaker/list');
   const {
     isLoading: MedsTakersPending,
     data: MedsTakers,
@@ -25,11 +23,11 @@ function Home() {
   console.log("ErrorStatus:",errorStatus)
 
   //v pripade nesparovaneho zarizeni - bude potreba to vyresit lepe
-  const [unpaired, setPair] = useState(true);
+  const [unpaired, setPair] = useState(false);
   
   const addMedsTakerCart = <CreateMedsTaker refreshData={refreshData}></CreateMedsTaker>
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
-    <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={unpaired?null:"/pilltaker?"+MedsTaker._id}>
+    <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={unpaired?null:"/pilltaker?medstaker="+MedsTaker._id}>
       <Group justify="end" mt="md" mb="xs">
         {(/* battery */MedsTaker.phone_country_code === '420'?null:<IconBatteryOff style={{color: 'red'}}/>)}
         {(/* state */MedsTaker.phone_number[0] === '1' ? <Badge>Taken</Badge>

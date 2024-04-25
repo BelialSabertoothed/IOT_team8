@@ -4,18 +4,38 @@ import {
 } from '@mantine/core';
 import CreateMedicine from '../components/Medicine/createMedicine';
 import AlarmMedicine from '../components/Medicine/alarmMedicine';
-
+import useAxiosFetch from '../hooks/useAxiosFetch';
+/*
 const mockdata = [
   { id: 52 ,name: 'Paralen', medsTaker: 'Pepa', unit: 'pill', count: 5, addPerRefill: 30, oneDose: 1, notifications: false   },
   { id: 53, name: 'Ibalgin', medsTaker: 'Pepa', unit: 'pill', count: 5, addPerRefill: 30, oneDose: 1, notifications: false   },
   { id: 54 ,name: 'Vibrocil', medsTaker: 'Pepa', unit: 'pill', count: 5, addPerRefill: 30, oneDose: 1, notifications: false   },
   { id: 55, name: 'Happy pills', medsTaker: 'Pepa', unit: 'pill', count: 5, addPerRefill: 30, oneDose: 1, notifications: false   },
 ];
-
+*/
 function Pilltaker() {
   const theme = useMantineTheme();
-
-
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const medsTakerID = urlParams.get('medstaker')
+  console.log("medsTaker id:",medsTakerID);
+  const {
+    isLoading: MedicinePending,
+    data: Medicine,
+    isError: MedicineError,
+    errorStatus: MedicineErrorStatus,
+    errorMessage: MedicineErrorMessage,
+    refetch: MedicineRefresh
+  } = useAxiosFetch(`/medicine/getByMedsTaker/`+medsTakerID);
+  const {
+    isLoading: MedsTakersPending,
+    data: MedsTaker,
+    isError: MedsTakersError,
+    errorStatus: errorStatus,
+    errorMessage: errorMessage,
+    refetch: MedsTakersRefresh
+  } = useAxiosFetch(`/medsTaker/get`+medsTakerID);
+  console.log("MedsTakers:",MedsTaker)
  /*  const pills = mockdata.map((pill) => (
     <Box bg="red.5" miw='440' maw='auto' h='200'>
       <Group>
@@ -31,9 +51,9 @@ function Pilltaker() {
       </Group>
     </Box>
   )); */
-
-  const pill = mockdata?.map((medicine) => (
-    <Card w='290' h='200' mt={20} key={medicine.id} withBorder={true} shadow="sm">
+  console.log("Medicine:",Medicine)
+  const pill = Medicine?.map((medicine) => (
+    <Card w='290' h='200' mt={20} key={medicine._id} withBorder={true} shadow="sm">
       <Group justify="center">
         <Title>{medicine.name}</Title>
       </Group> 
@@ -46,7 +66,7 @@ function Pilltaker() {
       <Grid justify="space-between">
         <Box w={{ base: '440',xxs: '440', xs: '440', sm: '440', md: '892', lg: '892', xl: '892'}} h='50'>
           <Group justify="space-between">
-            <Title>medsTaker.name</Title>
+            <Title>{MedsTaker?.name?MedsTaker.name:"MedsTaker.name"}</Title>
             <Group justify="flex-end" gap="xs">
               <AlarmMedicine/>
               <CreateMedicine/>
