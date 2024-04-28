@@ -1,7 +1,8 @@
-import {React} from 'react'
+import { React, useContext } from 'react'
 import { TextInput,  Button, Group, Box, Title, PasswordInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
+import { UserContext } from '../../helpers/UserContext';
 import sendToServer from '../../utils/SendToServer';
 
 function LoginForm(promps) {
@@ -13,9 +14,13 @@ function LoginForm(promps) {
 
   const [visible, { toggle }] = useDisclosure(false);
 
+  // user context
+  const { setUser, user } = useContext(UserContext);
+
   const handleSubmit = async (values) => {
     const result = await sendToServer(`/user/login`, values);
     if (result) {
+        setUser(result);
         (promps.modal === true ? window.location.reload() : window.location.replace("/Home"))
     }
     else {
