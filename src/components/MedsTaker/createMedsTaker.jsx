@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Modal, Button, Box, TextInput, Group, NativeSelect, rem } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { SquarePlus } from 'lucide-react';
+import { Modal, Button, Box, TextInput, Group, NativeSelect, rem, PinInput, Stepper } from '@mantine/core';
+import { useForm, hasLength } from '@mantine/form';
+import { Pin, SquarePlus } from 'lucide-react';
 import sendToServer from '../../utils/SendToServer';
 
 const prep_country_code = [
@@ -15,21 +15,24 @@ const prep_country_code = [
 
 function CreateMedsTaker(props) {
   const [open, setOpen] = useState(false);
-  const form = useForm({
+  const form = useForm({    
     initialValues: {
       name: '',
       phone_country_code: '420',
       phone_number: '',
+      pair:''
     },
 
     validate: {
       name: (value) => (/[a-z]/.test(value) ? null : 'Requested'),
       phone_country_code: (value) => (/[0-9]/.test(value) ? null : 'Requested'),
       phone_number: (value) => (/[0-9]/.test(value) ? null : 'Requested'),
+      pair: hasLength({ min: 5, max: 5 }, ' '),
     },
   });
 
   async function handlSubmit(content){
+    delete content.pair;
     /*const response = await fetch("http://localhost:3001/medsTaker/create", 
       {
         method: 'POST',
@@ -66,30 +69,59 @@ function CreateMedsTaker(props) {
     />
   );
 
+  const [step, setStep] = useState(0);
+  const nextStep = () => setStep((currentStep) => (currentStep < 1 ? currentStep + 1 : currentStep));
+  const prevStep = () => setStep((currentStep) => (currentStep > 0 ? currentStep - 1 : currentStep));
+
   return (
     <>
       <Modal size={'lg'} opened={open} onClose={() => setOpen(false)} title="Create new meds taker" centered>
         <Box maw={340} mx="auto">
-            <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
-                <TextInput
-                    withAsterisk
-                    label="Name of meds taker"
-                    placeholder="Name"
-                    {...form.getInputProps('name')}
-                />
-                <TextInput
-                    withAsterisk
-                    label="Phone number of meds taker"
-                    leftSection={selectPhone}
-                    leftSectionWidth={110}
-                    placeholder="000 000 000"
-                    {...form.getInputProps('phone_number')}
-                />
-                <Group justify="space-between" mt="md">
-                <Button mb={40} mt={20} variant="light" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button mb={40} mt={20} type="submit">Create</Button>
+          <Stepper active={step} onStepClick={setStep} allowNextStepsSelect={false}>
+            <Stepper.Step label="MedsTaker" description="Add informations">
+              <form>
+                  <TextInput
+                      mt={40}
+                      withAsterisk
+                      label="Name of meds taker"
+                      placeholder="Name"
+                      {...form.getInputProps('name')}
+                  />
+                  <TextInput
+                      withAsterisk
+                      label="Phone number of meds taker"
+                      leftSection={selectPhone}
+                      leftSectionWidth={110}
+                      placeholder="000 000 000"
+                      {...form.getInputProps('phone_number')}
+                  />
+                  <Group mb={80} mt={60} justify="space-between">
+                    <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button onClick={() => {{form.isValid('name', 'phone_country_code', 'phone_number')===true?setStep((currentStep) => (currentStep < 1 ? currentStep + 1 : currentStep)):form.validate()};console.log(form.values)}}>Next</Button>
+                  </Group>
+                </form>
+            </Stepper.Step>
+            <Stepper.Step label="Device" description="Pair device">
+              <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
+                <PinInput ml={45} mt={80} mb={100} size="md" length={5} {...form.getInputProps('pair')}/>
+                <Group mb={80} mt={60} justify="space-between">
+                  <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
+                  <Group>
+                    <Button variant="default" onClick={prevStep}>Back</Button>
+                    <Button type="submit">Create</Button>
+                  </Group>
                 </Group>
-            </form>
+              </form>
+            </Stepper.Step>
+          </Stepper>
+
+          {/* <Group mb={80} mt={60} justify="space-between">
+            <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
+            <Group>
+              {step===1?<Button variant="default" onClick={prevStep}>Back</Button>:null}
+              {step===1?<Button type="submit">Create</Button>:<Button type="submit" onClick={nextStep}>Next</Button>}
+            </Group>
+          </Group> */}
         </Box>
       </Modal>
 

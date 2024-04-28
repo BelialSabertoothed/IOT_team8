@@ -22,6 +22,12 @@ function Home() {
   console.log("ErrorMessage:",errorMessage)
   console.log("ErrorStatus:",errorStatus)
 
+  const {
+    data: Medicine
+  } = useAxiosFetch(`/medicine/getByMedsTaker/6618011d8925d095a9a5034f`);
+
+  console.log(Medicine)
+
   //v pripade nesparovaneho zarizeni - bude potreba to vyresit lepe
   const [unpaired, setPair] = useState(false);
   
@@ -37,7 +43,7 @@ function Home() {
       </Group>
       <Group justify="start" pt={10}>
         <Avatar size="xl"/>
-        <Title>{MedsTaker.name} {(/* revard */MedsTaker.name.length === 4?<IconAwardFilled component='indicator'/>:null)}</Title>
+        <Title>{MedsTaker.name.length === 5?MedsTaker.name.substr(0, 3):MedsTaker.name.substr(0, 4)} {(/* revard */MedsTaker.name.length === 5?<IconAwardFilled component='indicator'/>:null)}</Title>
       </Group>
       {unpaired && <Overlay color="#000" backgroundOpacity={0.5} />}
     </Card>
