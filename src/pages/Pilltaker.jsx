@@ -5,14 +5,7 @@ import {
 import CreateMedicine from '../components/Medicine/createMedicine';
 import AlarmMedicine from '../components/Medicine/alarmMedicine';
 import useAxiosFetch from '../hooks/useAxiosFetch';
-/*
-const mockdata = [
-  { id: 52 ,name: 'Paralen', medsTaker: 'Pepa', unit: 'pill', count: 5, addPerRefill: 30, oneDose: 1, notifications: false   },
-  { id: 53, name: 'Ibalgin', medsTaker: 'Pepa', unit: 'pill', count: 5, addPerRefill: 30, oneDose: 1, notifications: false   },
-  { id: 54 ,name: 'Vibrocil', medsTaker: 'Pepa', unit: 'pill', count: 5, addPerRefill: 30, oneDose: 1, notifications: false   },
-  { id: 55, name: 'Happy pills', medsTaker: 'Pepa', unit: 'pill', count: 5, addPerRefill: 30, oneDose: 1, notifications: false   },
-];
-*/
+
 function Pilltaker() {
   const theme = useMantineTheme();
   const queryString = window.location.search;
@@ -36,27 +29,15 @@ function Pilltaker() {
     refetch: MedsTakersRefresh
   } = useAxiosFetch(`/medsTaker/get`+medsTakerID);
   console.log("MedsTakers:",MedsTaker)
- /*  const pills = mockdata.map((pill) => (
-    <Box bg="red.5" miw='440' maw='auto' h='200'>
-      <Group>
-        <Image
-          radius={100}
-          src={null}
-          h={200}
-          w={200}
-          fit="cover"
-          fallbackSrc="https://placehold.co/600x400?text=Placeholder"
-        />
-        <Title c={theme.colors[pill.color][3]} order={1}>{pill.name}</Title>
-      </Group>
-    </Box>
-  )); */
+ 
   console.log("Medicine:",Medicine)
   const pill = Medicine?.map((medicine) => (
-    <Card w='290' h='200' mt={20} key={medicine._id} withBorder={true} shadow="sm">
+    <Card w='470' h='200' mt={20} key={medicine._id} withBorder={true} radius={10} p='10px' shadow="sm">
       <Group justify="center">
         <Title>{medicine.name}</Title>
-      </Group> 
+        <Text style={{ paddingRight: '2%' }}>Days: {medicine.period.join(', ')}</Text>
+        <Text style={{ paddingRight: '2%' }}>Time: {/* medicine.reminder */}</Text>
+      </Group>
     </Card>
   ));
 

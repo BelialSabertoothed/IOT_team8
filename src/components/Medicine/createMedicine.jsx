@@ -1,7 +1,7 @@
 import React from 'react'
 import useAxiosFetch from '../../hooks/useAxiosFetch';
 import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button, Box, TextInput, Group, Input, NumberInput, NativeSelect, rem, Text, ActionIcon } from '@mantine/core';
+import { Modal, Button, Box, TextInput, Group, Input, NumberInput, NativeSelect, rem, Text, ActionIcon, Checkbox } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { IconChevronDown, IconTrash } from '@tabler/icons-react';
@@ -11,13 +11,14 @@ function CreateMedicine() {
 
   const {data: unitList} = useAxiosFetch(`/unit/list`)
   const [opened, { open, close }] = useDisclosure(false);
+  console.log(JSON.stringify(unitList))
   const form = useForm({
     initialValues: {
       medicineName: '',
       refill: '',
       time: '',
       amount: '',
-      unit: 'pill(s)',
+      unit: `tady ${unitList} unitList[0].name`,
       freqency: 'DAILY',
     },
 
@@ -117,7 +118,7 @@ function CreateMedicine() {
                       {...form.getInputProps('amount')}
                     />
                     <ActionIcon  variant="light" size={35} mb={-20}>
-                      <IconTrash component="button" onClick={console.log('nefunguju pomoc')}/* nefunguje koukni na to! onMouseEnter={console.log('ahoj')} *//>
+                      <IconTrash component="button" onClick={console.log('nefunguju pomoc (icontrash)')}/* nefunguje koukni na to! onMouseEnter={console.log('ahoj')} *//>
                     </ActionIcon>
                 </Group>
                 <Input
@@ -129,8 +130,8 @@ function CreateMedicine() {
                 >
                     <option value="DAILY">Daily</option>
                     <option value="WEEKLY">Weekly</option>
-                    <option value="MONTHLY">Monthly</option>
-                    <option value="YEARLY">Yearly</option>
+                    <option value="MONTHLY">Monthly?</option>
+                    <option value="YEARLY">Yearly?</option>
                     <option value="MONDAY">Monday</option>
                     <option value="TUESDAY">Tuesday</option>
                     <option value="WEDNESDAY">Wednesday</option>
@@ -139,6 +140,9 @@ function CreateMedicine() {
                     <option value="SATURDAY">Saturday</option>
                     <option value="SUNDAY">Sunday</option>
                 </Input>
+                <Group>
+                  <Checkbox>Monday</Checkbox>
+                </Group>
                 <Button variant="light" mt={10} fullWidth>Add time</Button>
 
                 <Group justify="space-between" mt="md">

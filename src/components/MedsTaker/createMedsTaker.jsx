@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Button, Box, TextInput, Group, NativeSelect, rem, PinInput, Stepper } from '@mantine/core';
 import { useForm, hasLength } from '@mantine/form';
-import { Pin, SquarePlus } from 'lucide-react';
+import { SquarePlus } from 'lucide-react';
 import sendToServer from '../../utils/SendToServer';
 
 const prep_country_code = [
@@ -49,6 +49,8 @@ function CreateMedsTaker(props) {
     if (result) {
       setOpen(false)
       props.refreshData()
+    }else {
+      alert('something went wrong')
     }
   }
 
