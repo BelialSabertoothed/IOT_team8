@@ -68,7 +68,7 @@ function Register() {
     const result = await sendToServer(`/user/register`, values);
     if (result) {
       window.location.replace("/login");
-      alert('Registration  was successful')
+      alert('Registration was successful')
     }
   }
 

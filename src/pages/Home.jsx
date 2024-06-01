@@ -1,9 +1,10 @@
-import {React, useState} from 'react'
+import {React, useState, useContext} from 'react'
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
 import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay} from '@mantine/core';
 import ModalLogin from '../components/Login/modalLogin';
 import {IconBatteryOff, IconFlame, IconAwardFilled} from '@tabler/icons-react'
+import { UserContext } from '../helpers/UserContext';
 
 function Home() {
   const {
@@ -14,7 +15,6 @@ function Home() {
     errorMessage: errorMessage,
     refetch: MedsTakersRefresh
   } = useAxiosFetch(`/medsTaker/list`);
-
   const refreshData = () => {MedsTakersRefresh();};
   console.log("MedsTakers:",MedsTakers)
   console.log("MedsTakersPending:",MedsTakersPending)
@@ -22,15 +22,19 @@ function Home() {
   console.log("ErrorMessage:",errorMessage)
   console.log("ErrorStatus:",errorStatus)
 
+  const { setUser, user } = useContext(UserContext);
+  console.log("UserContext",user)
+/*
   const {
     data: Medicine
   } = useAxiosFetch(`/medicine/getByMedsTaker/6618011d8925d095a9a5034f`);
 
   console.log(Medicine)
-
+  */
+  
   //v pripade nesparovaneho zarizeni - bude potreba to vyresit lepe
   const [unpaired, setPair] = useState(false);
-  
+
   const addMedsTakerCart = <CreateMedsTaker refreshData={refreshData}></CreateMedsTaker>
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
     <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={unpaired?null:"/pilltaker?medstaker="+MedsTaker._id}>
@@ -67,7 +71,7 @@ function Home() {
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900}} mx="auto" mt={50}>
       <Box w={{ base: 280, xxs: 280, xs: 280, sm: 600, md: 900, lg: 900, xl: 900}} h='50'>
         <Group justify="space-between">
-          <Title>User.name</Title>
+          <Title>{user? user.firstName +" "+ user.lastName : "user.name"}</Title>
           <Group justify="flex-end" gap="xs">
             {addMedsTakerCart}
           </Group>
