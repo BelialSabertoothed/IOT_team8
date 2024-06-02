@@ -50,7 +50,7 @@ export function HeroHedder() {
           </List>
 
           <Group mt={30}>
-            <Button radius="xl" size="md" className={classes.control}>
+            <Button radius="xl" size="md" className={classes.control} onClick={() => window.location.replace("/register")}>
               Get started
             </Button>
             {/* <Button

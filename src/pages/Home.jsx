@@ -1,9 +1,10 @@
 import {React, useState, useContext} from 'react'
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
-import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay} from '@mantine/core';
+import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator} from '@mantine/core';
 import ModalLogin from '../components/Login/modalLogin';
-import {IconBatteryOff, IconFlame, IconAwardFilled} from '@tabler/icons-react'
+import {IconBatteryOff, IconFlame, IconAwardFilled, IconStarFilled} from '@tabler/icons-react'
+import {Flame} from 'lucide-react'
 import { UserContext } from '../helpers/UserContext';
 
 function Home() {
@@ -46,7 +47,11 @@ function Home() {
           : <Badge color='lightgrey'>no data</Badge>)}
       </Group>
       <Group justify="start" pt={10}>
-        <Avatar size="xl"/>
+        {MedsTaker.phone_number[0] === '9' ? <Indicator label={<Image src={"../../pictures/flame.png"} h={20} w={20}></Image>} size={10} offset={11} position="bottom-end" color="transparent">
+          <Avatar size="xl"/>
+        </Indicator>:<Avatar size="xl"/>}
+        
+        
         <Group>
           <Box w={127} mr={-26} /* bg={"linear-gradient(270deg, rgba(255, 0, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"} */>
             <Title textWrap="wrap" lineClamp={2}> {MedsTaker.name.split(" ")[0]}</Title>
@@ -88,7 +93,6 @@ function Home() {
       <Grid justify="space-between" align="flex-start">
         {medsTakersCarts}
         <Card /* prosim nemazat */  w='290' h='200' mt={20} mb={20}/>
-        
       </Grid>
     </Box>   
   )

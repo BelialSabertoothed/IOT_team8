@@ -10,7 +10,7 @@ const prep_country_code = [
   { value: '262', label: '+262' },
   { value: '365', label: '+365' },
   { value: '231', label: '+231' },
-  { value: 'own value function', label: 'other' }
+  { value: 'own value function', label: 'other' } //TODO
 ];
 
 function CreateMedsTaker(props) {
