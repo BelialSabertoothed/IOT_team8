@@ -31,18 +31,13 @@ function NavBar() {
     <Box pb={10}>
       <header className={classes.header}>
         <Group justify="space-between" h="100%">
-        <Link to="/" style={{ textDecoration: 'none' }}>
+        <Link to={user?'/Home':'/'} style={{ textDecoration: 'none' }}>
           <div style={{ color: theme.primaryColor[0] ,display: "flex", alignItems: "center", gap: "5px"}}>
             <Pill size={30} ></Pill>
             <Title order={2}>Pills4U</Title>
           </div>
         </Link>
-          <Group h="100%" gap={0} visibleFrom="sm">
-            
-            <Link to="Home" className={classes.link}>
-              Home
-            </Link>
-          </Group>
+          
 
           {
             user ?
@@ -71,7 +66,7 @@ function NavBar() {
         <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
           <Divider my="sm" />
 
-          <a href="#" className={classes.link}>
+          <a href="" className={classes.link}>
             Home
           </a>
           <a href="#" className={classes.link}>

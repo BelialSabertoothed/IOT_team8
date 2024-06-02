@@ -47,7 +47,12 @@ function Home() {
       </Group>
       <Group justify="start" pt={10}>
         <Avatar size="xl"/>
-        <Title>{MedsTaker.name.length === 5?MedsTaker.name.substr(0, 3):MedsTaker.name.substr(0, 4)} {(/* revard */MedsTaker.name.length === 5?<IconAwardFilled component='indicator'/>:null)}</Title>
+        <Group>
+          <Box w={127} mr={-26} /* bg={"linear-gradient(270deg, rgba(255, 0, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"} */>
+            <Title textWrap="wrap" lineClamp={2}> {MedsTaker.name.split(" ")[0]}</Title>
+          </Box>
+          <Box w={10} h={40} bg={"linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"}></Box>
+        </Group>
       </Group>
       {unpaired && <Overlay color="#000" backgroundOpacity={0.5} />}
     </Card>

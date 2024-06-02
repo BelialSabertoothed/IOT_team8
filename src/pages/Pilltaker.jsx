@@ -267,7 +267,7 @@ function Pilltaker() {
 
   return (
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900 }} mx="auto" mt={50}>
-      <Grid justify="space-between">
+      <Grid justify="space-between" mb={50}>
         <Box w={{ base: '440px', xxs: '440px', xs: '440px', sm: '440px', md: '892px', lg: '892px', xl: '892px' }} h='50'>
           <Group justify="space-between">
             <Title>{MedsTaker?.name ? MedsTaker.name : "MedsTaker.name"}</Title>
@@ -279,7 +279,7 @@ function Pilltaker() {
         </Box>
         <Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
         {pill}
-        <Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
+        {pill<=0?null:<Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>}
         {groupedPillCards}
       </Grid>
     </Box>
