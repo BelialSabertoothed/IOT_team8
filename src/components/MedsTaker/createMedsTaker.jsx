@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Modal, Button, Box, TextInput, Group, NativeSelect, rem, PinInput, Stepper } from '@mantine/core';
+import { Modal, Button, Box, TextInput, Group, NativeSelect, rem, PinInput, Stepper, Input } from '@mantine/core'; //reset phone from textinput to input
+//import { IMaskInput } from 'react-imask'; //plugin add?
 import { useForm, hasLength } from '@mantine/form';
 import { SquarePlus } from 'lucide-react';
 import sendToServer from '../../utils/SendToServer';
@@ -95,6 +96,7 @@ function CreateMedsTaker(props) {
                       leftSection={selectPhone}
                       leftSectionWidth={110}
                       placeholder="000 000 000"
+                      /* mask="000 000 000" */
                       {...form.getInputProps('phone_number')}
                   />
                   <Group mb={80} mt={60} justify="space-between">

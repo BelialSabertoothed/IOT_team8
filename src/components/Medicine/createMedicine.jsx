@@ -1,7 +1,7 @@
-import React from 'react'
+import {React, useState} from 'react'
 import useAxiosFetch from '../../hooks/useAxiosFetch';
 import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button, Box, TextInput, Group, Input, NumberInput, NativeSelect, rem, Text, ActionIcon, Checkbox } from '@mantine/core';
+import { Modal, Button, Box, TextInput, Group, Input, NumberInput, NativeSelect, rem, Text, ActionIcon, Checkbox, MultiSelect, Switch, Tooltip } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { IconChevronDown, IconTrash } from '@tabler/icons-react';
@@ -11,15 +11,15 @@ function CreateMedicine() {
 
   const {data: unitList} = useAxiosFetch(`/unit/list`)
   const [opened, { open, close }] = useDisclosure(false);
-  console.log(JSON.stringify(unitList))
+  console.log(unitList)
   const form = useForm({
     initialValues: {
       medicineName: '',
       refill: '',
       time: '',
       amount: '',
-      unit: `tady ${unitList} unitList[0].name`,
-      freqency: 'DAILY',
+      unit: '',
+      freqency: [],
     },
 
     validate: {
@@ -27,6 +27,7 @@ function CreateMedicine() {
     },
   });
 
+  /* form.setValues({unit: 'unitList[0].name'}) */
   //unit list
 
   const listOfUnits = unitList?.map((unit) => (
@@ -67,6 +68,47 @@ function CreateMedicine() {
     />
   );
 
+  //refil chackbox
+
+  //const allChecked = values.every((value) => value.checked);
+
+  const days = [
+    { value:'0', label:"Monday" },
+    { value: '1', label: 'Tuesday' },
+    { value: '2', label: 'Wednesday' },
+    { value: '3', label: 'Thursday' },
+    { value: '4', label: 'Friday' },
+    { value: '5', label: 'Saturday' },
+    { value: '6', label: 'Sunday' }
+  ]
+
+  const [checked, setChecked] = useState(false);
+  const checkAll = (
+      <Switch label="Dayli" labelPosition="left"/>
+  )
+
+  const hour = (
+    <Input
+        component="select"
+    >
+      <option value="MONDAY">01</option>
+      <option value="TUESDAY">02</option>
+      <option value="WEDNESDAY">03</option>
+      <option value="THURSDAY">04</option>
+      <option value="FRIDAY">05</option>
+      <option value="SATURDAY">06</option>
+      <option value="SUNDAY">07</option>
+    </Input>
+  )
+  const minutes = (
+    <Input
+        component="select"
+    >
+      <option value="MONDAY">00</option>
+      <option value="TUESDAY">30</option>
+    </Input>
+  )
+
   return (
     <>
       <Modal size={'lg'} opened={opened} onClose={close} title="Create new medicine">
@@ -91,24 +133,31 @@ function CreateMedicine() {
                     {...form.getInputProps('refill')}
                 />
                 <Text mt={20} fw={500} size='sm'>Meds harmonogram *</Text>
+                <Text mt={10} mb={5} fw={500} size='xs' c="dimmed">1. dose</Text>
                 <Group>
-                    <NumberInput
-                        w={110}
-                        mt={2}
-                        disabled
-                        placeholder=':'
-                        rightSection={'00'}
-                        rightSectionWidth={50}
-                        leftSection={'10'}
-                        leftSectionWidth={50}
-                        description={`1. dose`}
-                        timeSteps={{ minutes: 15 }}
-                        {...form.getInputProps('time')}
-                    />
+                    <Input
+                        component="select"
+                        mr={-5}
+                    >
+                      <option value="MONDAY">01</option>
+                      <option value="TUESDAY">02</option>
+                      <option value="WEDNESDAY">03</option>
+                      <option value="THURSDAY">04</option>
+                      <option value="FRIDAY">05</option>
+                      <option value="SATURDAY">06</option>
+                      <option value="SUNDAY">07</option>
+                    </Input>
+                    :
+                    <Input
+                      component="select"
+                      ml={-5}
+                    >
+                      <option value="MONDAY">00</option>
+                      <option value="TUESDAY">30</option>
+                    </Input>
                     <NumberInput
                       w={162}
                       withAsterisk
-                      mt={20}
                       placeholder="Amount"
                       rightSection={amoundUnit}
                       rightSectionWidth={92}
@@ -117,21 +166,31 @@ function CreateMedicine() {
                       hideControls
                       {...form.getInputProps('amount')}
                     />
-                    <ActionIcon  variant="light" size={35} mb={-20}>
-                      <IconTrash component="button" onClick={console.log('nefunguju pomoc (icontrash)')}/* nefunguje koukni na to! onMouseEnter={console.log('ahoj')} *//>
+                    <ActionIcon  variant="light" size={35}>
+                      <IconTrash component="button" onMouseEnter={() => console.log('grey')} onClick={() =>console.log('deleate')} />
                     </ActionIcon>
                 </Group>
-                <Input
+                {/* {<Checkbox.Group
+                  defaultValue={['']}
+                  {...form.getInputProps('freqency')}
+                >
+                  <Group mt="xs">
+                    <Checkbox value="0" label="Monday" />
+                    <Checkbox value="1" label="Tuesday" />
+                    <Checkbox value="2" label="Wednesday" />
+                    <Checkbox value="3" label="Thursday" />
+                    <Checkbox value="4" label="Friday" />
+                    <Checkbox value="5" label="Saturday" />
+                    <Checkbox value="6" label="Sunday" />
+                  </Group>
+                </Checkbox.Group>} */}
+                {/* <Input
                     component="select"
                     rightSection={<IconChevronDown size={14} stroke={1.5} />}
                     pointer
                     mt="md"
                     {...form.getInputProps('freqency')}
                 >
-                    <option value="DAILY">Daily</option>
-                    <option value="WEEKLY">Weekly</option>
-                    <option value="MONTHLY">Monthly?</option>
-                    <option value="YEARLY">Yearly?</option>
                     <option value="MONDAY">Monday</option>
                     <option value="TUESDAY">Tuesday</option>
                     <option value="WEDNESDAY">Wednesday</option>
@@ -139,11 +198,18 @@ function CreateMedicine() {
                     <option value="FRIDAY">Friday</option>
                     <option value="SATURDAY">Saturday</option>
                     <option value="SUNDAY">Sunday</option>
-                </Input>
-                <Group>
-                  <Checkbox>Monday</Checkbox>
-                </Group>
-                <Button variant="light" mt={10} fullWidth>Add time</Button>
+                </Input> */}
+                <MultiSelect
+                mt={10}
+                  placeholder="Select day"
+                  hidePickedOptions
+                  maxDropdownHeight={120}
+                  /* rightSection={checkAll} */
+                  rightSectionWidth={100}
+                  {...form.getInputProps('freqency')}
+                  data={days}
+                />
+                <Button variant="light" mt={10} fullWidth>Add dose</Button>
 
                 <Group justify="space-between" mt="md">
                 <Button mb={40} mt={20} variant="light">Cancel</Button>
