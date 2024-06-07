@@ -1,10 +1,9 @@
 import {React, useState, useContext} from 'react'
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
-import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator} from '@mantine/core';
+import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator, Button} from '@mantine/core';
 import ModalLogin from '../components/Login/modalLogin';
-import {IconBatteryOff, IconFlame, IconAwardFilled, IconStarFilled} from '@tabler/icons-react'
-import {Flame} from 'lucide-react'
+import {IconBatteryOff, IconArrowBackUp} from '@tabler/icons-react'
 import { UserContext } from '../helpers/UserContext';
 
 function Home() {
@@ -25,12 +24,13 @@ function Home() {
 
   const { setUser, user } = useContext(UserContext);
   console.log("UserContext",user)
+  const [future] = useState(false);
 /*
   const {
-    data: Medicine
-  } = useAxiosFetch(`/medicine/getByMedsTaker/6618011d8925d095a9a5034f`);
+    data: Device
+  } = useAxiosFetch(`device/getByCode/ltcpi`);
 
-  console.log(Medicine)
+  console.log(Device)
   */
   
   //v pripade nesparovaneho zarizeni - bude potreba to vyresit lepe
@@ -40,14 +40,15 @@ function Home() {
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
     <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={unpaired?null:"/pilltaker?medstaker="+MedsTaker._id}>
       <Group justify="end" mt="md" mb="xs">
-        {(/* battery */MedsTaker.phone_country_code === '420'?null:<IconBatteryOff style={{color: 'red'}}/>)}
-        {(/* state */MedsTaker.phone_number[0] === '1' ? <Badge>Taken</Badge>
-          : MedsTaker.phone_number[0] === '9' ? <Badge variant='light'>Reminded</Badge>
-          : MedsTaker.phone_number[0] === '5' ? <Badge color='red'>Forgoten</Badge>
-          : <Badge color='lightgrey'>no data</Badge>)}
+        {(MedsTaker.phone_country_code === '420'?<Box w={10} h={20}></Box>:<IconBatteryOff style={{color: 'red'}}/>)}
+        {(future === true && MedsTaker.phone_number[0] === '1' ? <Badge>Taken</Badge>
+          : future === true && MedsTaker.phone_number[0] === '9' ? <Badge variant='light'>Reminded</Badge>
+          : future === true && MedsTaker.phone_number[0] === '5' ? <Badge color='red'>Forgoten</Badge>
+          : future === true && MedsTaker.phone_number[0] === '6' ?<Badge color='lightgrey'>no data</Badge>
+          : null)}
       </Group>
       <Group justify="start" pt={10}>
-        {MedsTaker.phone_number[0] === '9' ? <Indicator label={<Image src={"../../pictures/flame.png"} h={20} w={20}></Image>} size={10} offset={11} position="bottom-end" color="transparent">
+        {future === true && MedsTaker.phone_number[0] === '9' ? <Indicator label={<Image src={"../../pictures/flame.png"} h={20} w={20}></Image>} size={10} offset={11} position="bottom-end" color="transparent">
           <Avatar size="xl"/>
         </Indicator>:<Avatar size="xl"/>}
         
@@ -79,6 +80,9 @@ function Home() {
   )}
   else return (  
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900}} mx="auto" mt={50}>
+      <Button mt={-100} mb={-10} ml={-20} onClick={() => (window.location.replace("/Home"))} leftSection={<IconArrowBackUp size={14} />} variant="transparent">
+        Back (na pilltaker)
+      </Button>
       <Box w={{ base: 280, xxs: 280, xs: 280, sm: 600, md: 900, lg: 900, xl: 900}} h='50'>
         <Group justify="space-between">
           <Title>{user? user.firstName +" "+ user.lastName : "user.name"}</Title>

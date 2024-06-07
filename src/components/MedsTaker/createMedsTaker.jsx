@@ -27,7 +27,7 @@ function CreateMedsTaker(props) {
     validate: {
       name: (value) => (/[a-z]/.test(value) ? null : 'Requested'),
       phone_country_code: (value) => (/[0-9]/.test(value) ? null : 'Requested'),
-      phone_number: (value) => (/[0-9]/.test(value) ? null : 'Requested'),
+      phone_number: (value) => (/[0-9]{3}\s[0-9]{3}\s[0-9]{3}|[0-9]{9}/.test(value) ? null : 'Requested'),
       pair: hasLength({ min: 5, max: 5 }, ' '),
     },
   });
@@ -101,7 +101,7 @@ function CreateMedsTaker(props) {
                   />
                   <Group mb={80} mt={60} justify="space-between">
                     <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={() => {{form.isValid('name', 'phone_country_code', 'phone_number')===true?setStep((currentStep) => (currentStep < 1 ? currentStep + 1 : currentStep)):form.validate()};console.log(form.values)}}>Next</Button>
+                    <Button onClick={() => {{form.isValid('name')===true && form.isValid('phone_number')===true?setStep((currentStep) => (currentStep < 1 ? currentStep + 1 : currentStep)):form.validate()};console.log(form.values)}}>Next</Button>
                   </Group>
                 </form>
             </Stepper.Step>

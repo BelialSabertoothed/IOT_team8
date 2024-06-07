@@ -1,6 +1,4 @@
 Home
-    ---long name kinda problem?
-    error display phone number...
     how to work with data while pair
     get data about device (how from body)
     pair error
@@ -24,12 +22,11 @@ Register
     error handling
 
 NavBar
-    problikavani user/login resit vubec?
-    ---home? (v pripade prihlaseneho uzivatele se na /home dostane kliknutim na logo?)
+    ---problikavani user/login resit vubec?
+    ---home? (v pripade prihlaseneho uzivatele se na /home dostane kliknutim na logo?) 
+    vel. sm divny
 
 
 Other
     error handeling
-    responsivity of texts
-    validation of text lenght
     todo fetch axis body
