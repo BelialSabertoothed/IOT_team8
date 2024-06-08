@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Grid, Box, Text, Title, useMantineTheme, Group, Card, Button, Stack, Flex, Checkbox
+  Grid, Box, Text, Title, useMantineTheme, Group, Card, Button, Stack, Flex, Checkbox, Modal
 } from '@mantine/core';
 import { IconSettings } from '@tabler/icons-react';
+import { TbPill } from 'react-icons/tb';
 import CreateMedicine from '../components/Medicine/createMedicine';
 import AlarmMedicine from '../components/Medicine/alarmMedicine';
 import useAxiosFetch from '../hooks/useAxiosFetch';
@@ -11,8 +12,8 @@ function Pilltaker() {
   const theme = useMantineTheme();
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  const medsTakerID = urlParams.get('medstaker')
-  console.log("medsTaker id:",medsTakerID);
+  const medsTakerID = urlParams.get('medstaker');
+  console.log("medsTaker id:", medsTakerID);
   const {
     isLoading: MedicinePending,
     data: Medicine,
@@ -20,7 +21,7 @@ function Pilltaker() {
     errorStatus: MedicineErrorStatus,
     errorMessage: MedicineErrorMessage,
     refetch: MedicineRefresh
-  } = useAxiosFetch(`/medicine/getByMedsTaker/`+medsTakerID);
+  } = useAxiosFetch(`/medicine/getByMedsTaker/` + medsTakerID);
   const {
     isLoading: MedsTakersPending,
     data: MedsTaker,
@@ -28,54 +29,71 @@ function Pilltaker() {
     errorStatus: errorStatus,
     errorMessage: errorMessage,
     refetch: MedsTakersRefresh
-  } = useAxiosFetch(`/medsTaker/get`+medsTakerID);
+  } = useAxiosFetch(`/medsTaker/get` + medsTakerID);
 
-  console.log("MedsTakers:",MedsTaker)
-  console.log("Medicine:",Medicine)
+  const {
+    isLoading: UnitsPending,
+    data: Units,
+    isError: UnitsError,
+    errorStatus: UnitsErrorStatus,
+    errorMessage: UnitsErrorMessage,
+    refetch: UnitsRefresh
+  } = useAxiosFetch(`/unit/list`);
 
   const [takenStates, setTakenStates] = useState({});
   const [groupedMedicines, setGroupedMedicines] = useState([]);
+  const [modalOpened, setModalOpened] = useState(false);
+  const [selectedMedicine, setSelectedMedicine] = useState(null);
 
   useEffect(() => {
     if (Medicine) {
+      console.log("Medicine data loaded:", Medicine);
       const initialState = {};
       Medicine.forEach((medicine) => {
-        initialState[medicine._id] = false; // Default state is "Neužito"
+        initialState[medicine._id] = false; // Default state is "Not Taken"
       });
       setTakenStates(initialState);
       const filteredAndGrouped = groupMedicinesByTime(filterMedicinesInNext48Hours(Medicine));
       setGroupedMedicines(filteredAndGrouped);
-      console.log("Filtered and Grouped Medicines:", filteredAndGrouped);
     }
   }, [Medicine]);
 
-const handleButtonClick = (id, dose) => {
-  setTakenStates(prevState => {
-    const newState = !prevState[id];
-    const updatedMedicines = groupedMedicines.map(group => ({
-      ...group,
-      medicines: group.medicines.map(medicine => {
-        if (medicine._id === id) {
-          if (newState && !prevState[id]) { // Only decrease count when changing to "Užito"
-            medicine.history.push({
-              startDate: new Date().toISOString(),
-              endDate: new Date().toISOString(),
-              state: "Active"
-            }); // Add to history
-            medicine.count = Math.max(0, medicine.count - dose); // Decrease the count by the dose amount, ensuring it doesn't go below 0
-          }
+  const handleButtonClick = (id, dose) => {
+    console.log(`Button clicked for medicine ID: ${id}`);
+    setTakenStates(prevState => {
+      const newState = !prevState[id];
+
+      const updatedMedicines = Medicine.map(medicine => {
+        if (medicine._id === id && newState && !prevState[id]) {
+          medicine.history.push({
+            startDate: new Date().toISOString(),
+            endDate: new Date().toISOString(),
+            state: "Active"
+          });
+          medicine.count = Math.max(0, medicine.count - dose);
         }
         return medicine;
-      })
-    }));
+      });
 
-    const newGroupedMedicines = groupMedicinesByTime(filterMedicinesInNext48Hours(updatedMedicines.flatMap(group => group.medicines)));
-    setGroupedMedicines(newGroupedMedicines);
+      const newGroupedMedicines = groupMedicinesByTime(filterMedicinesInNext48Hours(updatedMedicines));
+      setGroupedMedicines(newGroupedMedicines);
 
-    return { ...prevState, [id]: newState };
-  });
-};
+      return { ...prevState, [id]: newState };
+    });
+  };
 
+  const handlePillClick = (medicine) => {
+    setSelectedMedicine(medicine);
+    setModalOpened(true);
+  };
+
+  const handleConfirmAddDose = () => {
+    if (selectedMedicine) {
+      selectedMedicine.count += selectedMedicine.addPerRefill;
+      setModalOpened(false);
+      setSelectedMedicine(null);
+    }
+  };
 
   const parseRecurrenceRule = (rule) => {
     const ruleParts = rule.split(';');
@@ -104,10 +122,9 @@ const handleButtonClick = (id, dose) => {
     const hours = (ruleObj.BYHOUR || '').split(',').map(Number).filter(hour => !isNaN(hour)); // Filter out invalid hours
     const minutes = (ruleObj.BYMINUTE || '').split(',').map(Number).filter(min => !isNaN(min)); // Filter out invalid minutes
     const dose = reminder.dose || 0; // Ensure dose is included
-    console.log(`Parsed reminder: days: ${days}, hours: ${hours}, minutes: ${minutes}, dose: ${dose}`);
     return { days, hours, minutes, dose };
-  };  
-  
+  };
+
   const getNextDoseTime = (medicine) => {
     const now = new Date();
     const currentDay = now.getDay();
@@ -144,7 +161,6 @@ const handleButtonClick = (id, dose) => {
       });
     });
 
-    console.log(`Next dose time for ${medicine.name}:`, nextDose);
     return nextDose;
   };
 
@@ -154,13 +170,10 @@ const handleButtonClick = (id, dose) => {
 
     const filteredMedicines = medicines.filter(medicine => {
       const nextDoseTime = getNextDoseTime(medicine);
-      console.log(`Next dose time for ${medicine.name}:`, nextDoseTime); // Log next dose time
       const isInNext48Hours = nextDoseTime >= now && nextDoseTime <= in48Hours;
-      console.log(`Is ${medicine.name} in next 48 hours?`, isInNext48Hours);
       return isInNext48Hours;
     });
 
-    console.log("Filtered medicines in next 48 hours:", filteredMedicines);
     return filteredMedicines;
   };
 
@@ -182,7 +195,6 @@ const handleButtonClick = (id, dose) => {
       medicines: grouped[timeKey]
     })).sort((a, b) => a.time - b.time);
 
-    console.log("Grouped medicines by time:", groupedArray);
     return groupedArray;
   };
 
@@ -206,7 +218,6 @@ const handleButtonClick = (id, dose) => {
                   const { days, hours, minutes, dose } = getReminderTimes(reminder);
                   if (days.includes(time.getDay()) && hours.includes(time.getHours()) && minutes.includes(time.getMinutes())) {
                     medicine.count -= dose;
-                    console.log(`Dose for ${medicine.name} deducted by ${dose}. Remaining count: ${medicine.count}`);
                   }
                 });
               }
@@ -216,23 +227,121 @@ const handleButtonClick = (id, dose) => {
         }
         return group;
       });
-  
+
       const newGroupedMedicines = groupMedicinesByTime(filterMedicinesInNext48Hours(updatedGroupedMedicines.flatMap(group => group.medicines)));
       setGroupedMedicines(newGroupedMedicines);
-      console.log("New Grouped Medicines after check:", newGroupedMedicines);
-  
+
       return updatedTakenStates;
     });
   };
-  
 
+  const getUnitName = (unitId) => {
+    const unit = Units.find(u => u._id === unitId);
+    return unit ? unit.name : '';
+  };
+
+  const formatReminderTimes = (reminders) => {
+    const dailyTimes = [];
+    const specificTimes = [];
+
+    reminders.forEach(rem => {
+      const { days, hours, minutes } = getReminderTimes(rem);
+      const time = `${hours[0]}:${minutes[0] < 10 ? `0${minutes[0]}` : minutes[0]}`;
+      if (days.length === 7) {
+        dailyTimes.push(time);
+      } else {
+        specificTimes.push(
+          `${days.map(day => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]).join(', ')} at ${time}`
+        );
+      }
+    });
+
+    let result = '';
+    if (dailyTimes.length > 0) {
+      result += `Daily at ${dailyTimes.join(' and ')}`;
+    }
+    if (specificTimes.length > 0) {
+      if (result) result += '; ';
+      result += specificTimes.join('; ');
+    }
+
+    return result;
+  };
+
+  // Always render all medicines
+  const allPillCards = Medicine?.map(medicine => {
+    const unitName = getUnitName(medicine.unit);
+    const isRefillNeeded = medicine.count === 0;
+    const isTaken = takenStates[medicine._id];
+
+    console.log(`Rendering card for: ${medicine.name}, isRefillNeeded: ${isRefillNeeded}, isTaken: ${isTaken}`);
+
+    return (
+      <Card 
+        w='290px' 
+        h='200px' 
+        mt={20} 
+        key={medicine._id} 
+        withBorder={true} 
+        radius={10} 
+        p='20px' 
+        shadow="sm"
+        style={{ backgroundColor: isRefillNeeded ? theme.colors.gray[2] : 'white' }}
+      >
+        <Flex direction="column" justify="space-between" h="100%">
+          <Stack spacing="lg">
+            <Group position="apart">
+              <Title order={4} style={{ marginBottom: '0.5rem' }}>
+                {medicine.name}
+                <Text
+                  size="xs"
+                  style={{
+                    display: 'inline',
+                    marginLeft: '8px'
+                  }}
+                >
+                  {medicine.reminder[0]?.dose || 0} {unitName}
+                </Text>
+              </Title>
+              <Group style={{ marginLeft: 'auto' }}>
+                <TbPill
+                  size={20}
+                  style={{ cursor: 'pointer', position: 'relative', top: '-10px' }}
+                  onClick={() => handlePillClick(medicine)}
+                />
+                <IconSettings
+                  size={20}
+                  style={{ cursor: 'pointer', position: 'relative', top: '-10px' }}
+                  /*onClick={() => update}*/
+                />
+              </Group>
+            </Group>
+            <Text size="sm">{formatReminderTimes(medicine.reminder)}</Text>
+            <Text size="sm"> Doses left {medicine.count} </Text>
+          </Stack>
+          <Flex mt="auto" justify="center">
+            <Button
+              variant="filled"
+              color={isRefillNeeded ? 'gray' : isTaken ? 'black' : 'purple'}
+              onClick={() => isRefillNeeded ? handlePillClick(medicine) : handleButtonClick(medicine._id, medicine.reminder[0]?.dose || 0)}
+              style={{ width: '250px', height: '35px' }}
+            >
+              {isRefillNeeded ? 'Refill Dose' : (isTaken ? 'Taken' : 'Not Taken')}
+            </Button>
+          </Flex>
+        </Flex>
+      </Card>
+    );
+  });
+
+  // Render grouped medicines for the next 48 hours
   const groupedPillCards = groupedMedicines.map((group, index) => {
     const allTaken = group.medicines.every(medicine => takenStates[medicine._id]);
     const localTime = new Date(group.time.getTime() - (group.time.getTimezoneOffset() * 60000));
     const dayOfWeek = localTime.toLocaleString('en-US', { weekday: 'long' });
     const date = localTime.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const time = localTime.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
-  
+
     return (
       <Card
         key={index}
@@ -261,66 +370,27 @@ const handleButtonClick = (id, dose) => {
               dose = r.dose; // Set correct dose
             }
           });
-  
-          console.log(`Rendering medicine in group: ${med.name}, dose: ${dose}`);
-  
+
           return (
-            <Text
-              key={idx}
-              size="sm"
-              style={{
-                textDecoration: takenStates[med._id] ? 'line-through' : 'none', marginLeft: '57px', marginTop: '5px'
-              }}
-            >
-              {med.name} {dose} pill
-            </Text>
+            <Group key={idx} style={{ marginLeft: '57px', marginTop: '5px' }}>
+              <Text
+                size="sm"
+                style={{
+                  textDecoration: takenStates[med._id] ? 'line-through' : 'none'
+                }}
+              >
+                {med.name} {dose} {getUnitName(med.unit)}
+              </Text>
+            </Group>
           );
         })}
       </Card>
     );
-  });  
-  
+  });
 
-  const pillCards = groupedMedicines.flatMap(group => group.medicines).map(medicine => (
-    <Card w='290px' h='200px' mt={20} key={medicine._id} withBorder={true} radius={10} p='20px' shadow="sm">
-      <Flex direction="column" justify="space-between" h="100%">
-        <Stack spacing="lg">
-          <Group position="apart">
-            <Title order={4} style={{ marginBottom: '0.5rem' }}>
-              {medicine.name}
-            </Title>
-            <IconSettings
-              size={20}
-              style={{ marginLeft: 'auto', cursor: 'pointer', position: 'relative', top: '-10px'}}
-              /*onClick={() => update}*/
-            />
-          </Group>
-          <Text size="sm">{medicine.reminder.map(rem => {
-            const { days, hours, minutes, dose } = getReminderTimes(rem);
-            if (days.length === 7) {
-              return `Daily at ${hours[0]}:${minutes[0] < 10 ? `0${minutes[0]}` : minutes[0]} - Dose: ${dose}`;
-            }
-            return `${days.map(day => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]).join(', ')} at ${hours[0]}:${minutes[0] < 10 ? `0${minutes[0]}` : minutes[0]} - Dose: ${dose}`;
-          }).join(', ')}</Text>
-          <Text size="sm">Zbývá {medicine.count} dávek</Text>
-        </Stack>
-        <Flex mt="auto" justify="center">
-          <Button
-            variant="filled"
-            color={takenStates[medicine._id] ? 'black' : 'purple'}
-            onClick={() => handleButtonClick(medicine._id, medicine.reminder[0]?.dose || 0)}
-            style={{ width: '250px', height: '35px' }}
-          >
-            {takenStates[medicine._id] ? 'Užito' : 'Neužito'}
-          </Button>
-        </Flex>
-      </Flex>
-    </Card>
-  ));
-  
   return (
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900 }} mx="auto" mt={50}>
-      <Grid justify="space-between" mb={50}>
+      <Grid justify="space-between">
         <Box w={{ base: '440px', xxs: '440px', xs: '440px', sm: '440px', md: '892px', lg: '892px', xl: '892px' }} h='50'>
           <Group justify="space-between">
             <Title>{MedsTaker?.name ? MedsTaker.name : "MedsTaker.name"}</Title>
@@ -331,10 +401,24 @@ const handleButtonClick = (id, dose) => {
           </Group>
         </Box>
         <Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
-        {pillCards}
+        {allPillCards}
         <Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
         {groupedPillCards}
       </Grid>
+      <Modal
+        centered
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+      >
+        <Title order={2} align="center" mb="md">Confirm Dose Refill</Title>
+        <Stack spacing="md" align="center">
+          <Text align="center">Are you sure you want to add {selectedMedicine?.addPerRefill} doses to {selectedMedicine?.name}?</Text>
+          <Group position="center">
+            <Button onClick={handleConfirmAddDose}>Confirm</Button>
+            <Button variant="outline" onClick={() => setModalOpened(false)}>Cancel</Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Box>
   );
 }
