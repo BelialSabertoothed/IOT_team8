@@ -1,9 +1,7 @@
 Home
-    long name display better
     how to work with data while pair
-    get data about device
+    get data about device (how from body)
     pair error
-    user.name
     pair send to server
 
 Introduction
@@ -14,10 +12,9 @@ Login
 
 Pilltaker
     cards UI
-    doses
+    doses (jdou do minusu...)
     modal new medicine
-    modal set alarms (to nevim jak resi backend)
-    propojeni se serverem
+    modal set alarms (backend to neresi, ponechat?)
     backend zvisit mnozstvi medicine per refil (1000ml)?
 
 Register
@@ -25,12 +22,11 @@ Register
     error handling
 
 NavBar
-    prepnuti talcitek uzivatele (pro prihlaseni profilovy obrazek a bez login...)
-    logout
-    home? (v pripade prihlaseneho uzivatele se na /home dostane kliknutim na logo?)
+    ---problikavani user/login resit vubec?
+    ---home? (v pripade prihlaseneho uzivatele se na /home dostane kliknutim na logo?) 
+    vel. sm divny
 
 
 Other
     error handeling
-    responsivity of texts
-    validation of text lenght
+    todo fetch axis body
