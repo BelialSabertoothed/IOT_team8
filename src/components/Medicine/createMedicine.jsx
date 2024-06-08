@@ -1,55 +1,53 @@
 import {React, useState} from 'react'
 import useAxiosFetch from '../../hooks/useAxiosFetch';
-import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button, Box, TextInput, Group, Input, NumberInput, NativeSelect, rem, Text, ActionIcon, Checkbox, ScrollArea, Chip, MultiSelect, Switch, Tooltip } from '@mantine/core';
-import { TimeInput } from '@mantine/dates';
+import { useDisclosure  } from '@mantine/hooks';
+import { Modal, Button, Box, TextInput, Group, Input, NumberInput, rem, Text, ScrollArea, Chip, Switch, Card, Select, Stepper } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconChevronDown, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import { SquarePlus } from 'lucide-react';
 
 function CreateMedicine() {
-  let remineder = []
   const {data: unitList} = useAxiosFetch(`/unit/list`)
-  const [opened, { open, close }] = useDisclosure(false);
-  console.log(unitList)
+  const [opened, { close, open }] = useDisclosure(false);
+  const [cards, setCards] = useState([{recurrenceRule: {byweekday: [],byhour: [12], byminute: [0]}, dose: 1}]);
+    
   const form = useForm({
     initialValues: {
       name: '',
       unit: null,
       count: 0,
       addPerRefill: 0,
-      reminder: [], //{recurrenceRule: {byweekday: [0, 6],byhour: [4, 16], byminute: [0]}, dose: 1}
+      notifications: true
     },
-
+  
     validate: {
-      medicineName: (value) => (/[a-z]/.test(value) ? null : 'Requested'),
+      name: (value) => (/[a-z]/.test(value) ? null : ' '),
+      unit: (value) => (value === null ? ' ' : null),
+      count: (value) => (value >= 0 ? null : ' '),
+      addPerRefill: (value) => (0 < value  ? null : ' '),
+      notifications: (value) => (value === true || value === false ? null : 'Requested'),
     },
   });
 
-  function CreateReminderList(reminder){
-
-  }
-
   async function handlSubmit(content){
     console.log("medicine create content:",content)
-    /*const result = await sendToServer(`/medsTaker/create`, content);
-    if (result) {
-      setOpen(false) //close TODO
-      props.refreshData()
-    }else {
-      alert('something went wrong')
-    }*/
-  }  
-
-  //unit list
+    console.log("medicine create content reminder:",cards)
+      /*const result = await sendToServer(`/medsTaker/create`, content);
+      if (result) {
+        setOpen(false) //close TODO
+        props.refreshData()
+      }else {
+        alert('something went wrong')
+      }*/
+  } 
 
   const listOfUnits = unitList?.map((unit) => (
-    {value: unit._id, label: unit.name}
-    
+    {value: unit._id, label: unit.name}    
   ));
 
   const selectUnits = (
-    <NativeSelect
+    <Select
+      allowDeselect={false}
       data={listOfUnits}
       rightSectionWidth={28}
       styles={{
@@ -65,15 +63,10 @@ function CreateMedicine() {
     />
   );
 
-  const unitName = unitList?.map(unit => {
-    const unitId = unit._id;
-    const unitName = unit.name;
-    if (unitId === form.values.unit) {
-      return unitName
-    } if(form.values.unit === null) {
-      return Object.getOwnPropertyDescriptors(unitList.at(0)).name.value
-    } else {null}
-  });
+  const unitName = () => {
+    let unit = listOfUnits?.find(item => item.value === form.values.unit??null)
+    return unit?.label
+  }
 
   const amoundUnit = (
     <Input
@@ -88,185 +81,186 @@ function CreateMedicine() {
           marginRight: rem(-12),
         },
       }}
-      value={unitName}
-      
+      value={unitName()}
     />
   );
 
-  //refil chackbox
+  const handl_delete = (index) => {
+    const newArray = [...cards];
+    newArray.splice(index, 1);
+    setCards(newArray);
+  };
+    
+  const handl_add = () =>  {
+    setCards([...cards, {recurrenceRule: {byweekday: [],byhour: [12], byminute: [0]}, dose: 1}]);   
+  };
+    
+  const handleHourChange = (value, index) => {
+    let onChangeValue = [...cards];
+    onChangeValue[index].recurrenceRule.byhour = [Number(value)];
+    setCards(onChangeValue);
+  };
 
-  //const allChecked = values.every((value) => value.checked);
+  const handleMinuteChange = (value, index) => {
+    let onChangeValue = [...cards];
+    onChangeValue[index].recurrenceRule.byminute = [Number(value)];
+    setCards(onChangeValue);
+  };
 
-  const days = [
-    { value:'0', label:"Monday" },
-    { value: '1', label: 'Tuesday' },
-    { value: '2', label: 'Wednesday' },
-    { value: '3', label: 'Thursday' },
-    { value: '4', label: 'Friday' },
-    { value: '5', label: 'Saturday' },
-    { value: '6', label: 'Sunday' }
-  ]
+  const handleAmoundChange = (value, index) => {
+    console.log("amound value:",value)
+    if ((value > 0) && (value < 256)){
+      let onChangeValue = [...cards];
+      onChangeValue[index].dose = [value];
+      setCards(onChangeValue);
+    }
+  };
 
-  const [checked, setChecked] = useState(false);
+  const handleDayChange = (value, index) => {
+    let onChangeValue = [...cards];
+    let valueIndex = onChangeValue[index].recurrenceRule.byweekday.indexOf(value)
+    if (valueIndex == -1) {onChangeValue[index].recurrenceRule.byweekday.push(value)}
+    else {onChangeValue[index].recurrenceRule.byweekday.splice(valueIndex,1)}
+    setCards(onChangeValue);
+  };
+    
+  const handleDayState = (value, index) => {
+    return cards[index].recurrenceRule.byweekday.includes(value);
+  };
+    
+  const handleWeekChange = (index) => {
+    let onChangeValue = [...cards];
+    if (handleWeekState(index)) {onChangeValue[index].recurrenceRule.byweekday = []}
+    else {onChangeValue[index].recurrenceRule.byweekday = [0,1,2,3,4,5,6]}
+    setCards(onChangeValue);
+  };
+    
+  const handleWeekState = (index) => {
+    if(cards[index].recurrenceRule.byweekday.length == 7) return true
+    else return false
+  };
 
-  const hour = (
-    <Input
-        component="select"
-        mr={-5}
-    >
-      <option value={0}>00</option>
-      <option value={1}>01</option>
-      <option value={2}>02</option>
-      <option value={3}>03</option>
-      <option value={4}>04</option>
-      <option value={5}>05</option>
-      <option value={6}>06</option>
-      <option value={7}>07</option>
-      <option value={8}>08</option>
-      <option value={9}>09</option>
-      <option value={10}>10</option>
-      <option value={11}>11</option>
-      <option value={12}>12</option>
-      <option value={13}>13</option>
-      <option value={14}>14</option>
-      <option value={15}>15</option>
-      <option value={16}>16</option>
-      <option value={17}>17</option>
-      <option value={18}>18</option>
-      <option value={19}>19</option>
-      <option value={20}>20</option>
-      <option value={21}>21</option>
-      <option value={22}>22</option>
-      <option value={23}>23</option>
-    </Input>
-  )
-  const minutes = (
-    <Input
-        component="select"
-        ml={-5}
-    >
-      <option value={0}>00</option>
-      <option value={30}>30</option>
-    </Input>
-  )
-
+  const [step, setStep] = useState(0);
+    
   return (
     <>
-      <Modal size={'lg'} opened={opened} onClose={close} title="Create new medicine">
+      <Modal opened={opened} onClose={close} title="Create Medicine">
         <Box maw={340} mx="auto">
-            <form onSubmit={form.onSubmit((values) => console.log(values))}>
+          <Stepper active={step} onStepClick={setStep} allowNextStepsSelect={false}>
+            <Stepper.Step label="Medicine" description="Add informations">
+              <form>
                 <TextInput
-                    withAsterisk
-                    maxLength={255}
-                    minLength={1}
-                    label="Name of medicine"
-                    placeholder="Name"
-                    {...form.getInputProps('name')}
+                  withAsterisk
+                  maxLength={255}
+                  minLength={1}
+                  label="Name of medicine"
+                  placeholder="Name"
+                  {...form.getInputProps('name')}
                 />
                 <NumberInput
-                    withAsterisk
-                    label="Medicine amount per refill"
-                    placeholder="Amount"
-                    min={1}
-                    max={511}
-                    rightSection={selectUnits}
-                    rightSectionWidth={92}
-                    {...form.getInputProps('addPerRefill')}
+                  withAsterisk
+                  label="The amount off medicine you possess"
+                  placeholder="Amount"
+                  min={0}
+                  max={511}
+                  rightSection={selectUnits}
+                  rightSectionWidth={92}
+                  {...form.getInputProps('count')}
                 />
                 <NumberInput
-                    withAsterisk
-                    label="The amount off medicine you possess"
-                    placeholder="Amount"
-                    min={1}
-                    max={511}
-                    rightSection={selectUnits}
-                    rightSectionWidth={92}
-                    {...form.getInputProps('count')}
+                  withAsterisk
+                  label="Medicine amount per refill"
+                  placeholder="Amount"
+                  min={1}
+                  max={511}
+                  rightSection={selectUnits}
+                  rightSectionWidth={92}
+                  {...form.getInputProps('addPerRefill')}
                 />
-                <Text mt={20} fw={500} size='sm'>Meds harmonogram *</Text>
-                <Text mt={10} mb={5} fw={500} size='xs' c="dimmed">1. dose</Text>
-                <ScrollArea mt={20}>
-                  <Group>
-                      {hour}
-                      :
-                      {minutes}
-                      <NumberInput
-                        w={162}
-                        withAsterisk
-                        placeholder="Amount"
-                        rightSection={amoundUnit}
-                        rightSectionWidth={92}
-                        min={1}
-                        max={511}
-                        hideControls
-                        {...form.getInputProps('dose')}
-                      />
-                      <ActionIcon  variant="light" size={35}>
-                        <IconTrash component="button" onMouseEnter={() => console.log('grey')} onClick={() =>console.log('deleate')} />
-                      </ActionIcon>
-                  </Group>
-                  {/* {<Checkbox.Group
-                    defaultValue={['']}
-                    {...form.getInputProps('freqency')}
-                  >
-                    <Group mt="xs">
-                      <Checkbox value="0" label="Monday" />
-                      <Checkbox value="1" label="Tuesday" />
-                      <Checkbox value="2" label="Wednesday" />
-                      <Checkbox value="3" label="Thursday" />
-                      <Checkbox value="4" label="Friday" />
-                      <Checkbox value="5" label="Saturday" />
-                      <Checkbox value="6" label="Sunday" />
-                    </Group>
-                  </Checkbox.Group>} */}
-                  {/* <Input
-                      component="select"
-                      rightSection={<IconChevronDown size={14} stroke={1.5} />}
-                      pointer
-                      mt="md"
-                      {...form.getInputProps('freqency')}
-                  >
-                      <option value="MONDAY">Monday</option>
-                      <option value="TUESDAY">Tuesday</option>
-                      <option value="WEDNESDAY">Wednesday</option>
-                      <option value="THURSDAY">Thursday</option>
-                      <option value="FRIDAY">Friday</option>
-                      <option value="SATURDAY">Saturday</option>
-                      <option value="SUNDAY">Sunday</option>
-                  </Input> */}
-                  {/* <MultiSelect
-                  mt={10}
-                    placeholder="Select day"
-                    maxDropdownHeight={120}
-                    leftSection={checkAll}
-                    leftSectionWidth={40}
-                    checkIconPosition="left"
-                    {...form.getInputProps('freqency')}
-                    data={days}
-                  /> */}
-                  <Chip.Group multiple>
-                    <Group justify='flex-start' mt={20}>
-                      <Switch></Switch>
-                      <Chip value={0} ml={4} size='xs' {...form.getInputProps('period.0.days.monday', { type: 'checkbox' })}>Monday</Chip>
-                      <Chip value={1} ml={-4} size='xs'>Tuesday</Chip> 
-                      <Chip value={2} ml={-4} size='xs'>Wednesday</Chip> 
-                      <Chip value={3} mr={-4} size='xs'>Thursday</Chip> 
-                      <Chip value={4} mr={-4} size='xs'>Friday</Chip> 
-                      <Chip value={5} mr={-4} size='xs'>Saturday</Chip> 
-                      <Chip value={6} size='xs'>Sunday</Chip>
-                    </Group>
-                  </Chip.Group>
-                </ScrollArea>
-                <Button variant="light" mt={40} fullWidth>Add dose</Button>
-
-                <Group justify="space-between" mt="md">
-                <Button mb={40} mt={20} variant="light">Cancel</Button>
-                <Button mb={40} mt={20} type="submit">Create</Button>
+                <Switch
+                  labelPosition="left"
+                  label="I want receive notification"
+                  {...form.getInputProps('notifications',{type: 'checkbox'})}
+                />
+                <Group mb={80} mt={60} justify="space-between">
+                  <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
+                  <Button onClick={() => {{(
+                    form.isValid('name')&&
+                    form.isValid('count')&&
+                    form.isValid('addPerRefill')&&
+                    form.isValid('unit')&&
+                    form.isValid('notifications'))===true?setStep(1):form.validate()};console.log(form.values)}}>Next</Button>
                 </Group>
-            </form>
+              </form>
+            </Stepper.Step>
+            <Stepper.Step label="Reminder" description="Set Reminder">
+                <Text mt={20} fw={500} size='sm'>Meds harmonogram *</Text>    
+                <ScrollArea h={300} >
+                  <div className="container">
+                    {cards.map((item, index) => (
+                      <Card key={index} withBorder={true}>
+                        <Group>
+                          <Select
+                            allowDeselect={false}
+                            defaultValue={'12'}
+                            w={70}
+                            onChange={(value) => handleHourChange(value, index)}
+                            data={[ '00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']}
+                          />
+                          :
+                          <Select
+                            allowDeselect={false}
+                            defaultValue={'00'}
+                            w={70}
+                            onChange={(value) => handleMinuteChange(value, index)}
+                            data={[ '00','15','30','45']}
+                          />
+                        </Group>
+                        <NumberInput
+                          w={162}
+                          withAsterisk
+                          allowDecimal={false}
+                          defaultValue={1}
+                          placeholder="Amount"
+                          rightSection={amoundUnit}
+                          rightSectionWidth={92}
+                          min={1}
+                          max={511}
+                          onChange={(value) => handleAmoundChange(value, index)}
+                          hideControls
+                        />
+                        <Chip.Group multiple>
+                          <Group justify='flex-start' mt={20}>
+                            <Switch checked={handleWeekState(index)} onChange={() => handleWeekChange(index)}/>
+                            <Chip ml={4} size='xs' checked={handleDayState(0, index)} onChange={() => handleDayChange(0, index)}>Monday</Chip>
+                            <Chip ml={4} size='xs' checked={handleDayState(1, index)} onChange={() => handleDayChange(1, index)}>Tuesday</Chip>
+                            <Chip ml={4} size='xs' checked={handleDayState(2, index)} onChange={() => handleDayChange(2, index)}>Wednesday</Chip>
+                            <Chip ml={4} size='xs' checked={handleDayState(3, index)} onChange={() => handleDayChange(3, index)}>Thursday</Chip>
+                            <Chip ml={4} size='xs' checked={handleDayState(4, index)} onChange={() => handleDayChange(4, index)}>Friday</Chip>
+                            <Chip ml={4} size='xs' checked={handleDayState(5, index)} onChange={() => handleDayChange(5, index)}>Saturday</Chip>
+                            <Chip ml={4} size='xs' checked={handleDayState(6, index)} onChange={() => handleDayChange(6, index)}>Sunday</Chip>
+                          </Group>
+                        </Chip.Group>
+                        {cards.length > 1 && (
+                          <Button onClick={() => handl_delete(index)}>Delete</Button>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
+                  <Group mt="xl">
+                    <Button onClick={() => handl_add()}>Add badge</Button>
+                  </Group>
+                </ScrollArea>
+                <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
+                <Group justify="space-between" mt="md">
+                  <Button variant="default" onClick={() => setStep(0)}>Back</Button>
+                  <Button type="submit">Create</Button>
+                </Group> 
+              </form> 
+            </Stepper.Step>
+          </Stepper>           
         </Box>
       </Modal>
-
       <SquarePlus size={40} component="button" onClick={open}/>
     </>
   );
