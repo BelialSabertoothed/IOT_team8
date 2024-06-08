@@ -40,10 +40,6 @@ function Pilltaker() {
     refetch: UnitsRefresh
   } = useAxiosFetch(`/unit/list`);
 
-  console.log("MedsTakers:", MedsTaker);
-  console.log("Medicine:", Medicine);
-  console.log("Units:", Units);
-
   const [takenStates, setTakenStates] = useState({});
   const [groupedMedicines, setGroupedMedicines] = useState([]);
   const [modalOpened, setModalOpened] = useState(false);
@@ -51,18 +47,19 @@ function Pilltaker() {
 
   useEffect(() => {
     if (Medicine) {
+      console.log("Medicine data loaded:", Medicine);
       const initialState = {};
       Medicine.forEach((medicine) => {
-        initialState[medicine._id] = false; // Default state is "Neužito"
+        initialState[medicine._id] = false; // Default state is "Not Taken"
       });
       setTakenStates(initialState);
       const filteredAndGrouped = groupMedicinesByTime(filterMedicinesInNext48Hours(Medicine));
       setGroupedMedicines(filteredAndGrouped);
-      console.log("Filtered and Grouped Medicines:", filteredAndGrouped);
     }
   }, [Medicine]);
 
   const handleButtonClick = (id, dose) => {
+    console.log(`Button clicked for medicine ID: ${id}`);
     setTakenStates(prevState => {
       const newState = !prevState[id];
 
@@ -125,7 +122,6 @@ function Pilltaker() {
     const hours = (ruleObj.BYHOUR || '').split(',').map(Number).filter(hour => !isNaN(hour)); // Filter out invalid hours
     const minutes = (ruleObj.BYMINUTE || '').split(',').map(Number).filter(min => !isNaN(min)); // Filter out invalid minutes
     const dose = reminder.dose || 0; // Ensure dose is included
-    console.log(`Parsed reminder: days: ${days}, hours: ${hours}, minutes: ${minutes}, dose: ${dose}`);
     return { days, hours, minutes, dose };
   };
 
@@ -165,7 +161,6 @@ function Pilltaker() {
       });
     });
 
-    console.log(`Next dose time for ${medicine.name}:`, nextDose);
     return nextDose;
   };
 
@@ -175,13 +170,10 @@ function Pilltaker() {
 
     const filteredMedicines = medicines.filter(medicine => {
       const nextDoseTime = getNextDoseTime(medicine);
-      console.log(`Next dose time for ${medicine.name}:`, nextDoseTime); // Log next dose time
       const isInNext48Hours = nextDoseTime >= now && nextDoseTime <= in48Hours;
-      console.log(`Is ${medicine.name} in next 48 hours?`, isInNext48Hours);
       return isInNext48Hours;
     });
 
-    console.log("Filtered medicines in next 48 hours:", filteredMedicines);
     return filteredMedicines;
   };
 
@@ -203,7 +195,6 @@ function Pilltaker() {
       medicines: grouped[timeKey]
     })).sort((a, b) => a.time - b.time);
 
-    console.log("Grouped medicines by time:", groupedArray);
     return groupedArray;
   };
 
@@ -227,7 +218,6 @@ function Pilltaker() {
                   const { days, hours, minutes, dose } = getReminderTimes(reminder);
                   if (days.includes(time.getDay()) && hours.includes(time.getHours()) && minutes.includes(time.getMinutes())) {
                     medicine.count -= dose;
-                    console.log(`Dose for ${medicine.name} deducted by ${dose}. Remaining count: ${medicine.count}`);
                   }
                 });
               }
@@ -240,7 +230,6 @@ function Pilltaker() {
 
       const newGroupedMedicines = groupMedicinesByTime(filterMedicinesInNext48Hours(updatedGroupedMedicines.flatMap(group => group.medicines)));
       setGroupedMedicines(newGroupedMedicines);
-      console.log("New Grouped Medicines after check:", newGroupedMedicines);
 
       return updatedTakenStates;
     });
@@ -283,6 +272,10 @@ function Pilltaker() {
   const allPillCards = Medicine?.map(medicine => {
     const unitName = getUnitName(medicine.unit);
     const isRefillNeeded = medicine.count === 0;
+    const isTaken = takenStates[medicine._id];
+
+    console.log(`Rendering card for: ${medicine.name}, isRefillNeeded: ${isRefillNeeded}, isTaken: ${isTaken}`);
+
     return (
       <Card 
         w='290px' 
@@ -329,11 +322,11 @@ function Pilltaker() {
           <Flex mt="auto" justify="center">
             <Button
               variant="filled"
-              color={isRefillNeeded ? 'gray' : takenStates[medicine._id] ? 'black' : 'purple'}
+              color={isRefillNeeded ? 'gray' : isTaken ? 'black' : 'purple'}
               onClick={() => isRefillNeeded ? handlePillClick(medicine) : handleButtonClick(medicine._id, medicine.reminder[0]?.dose || 0)}
               style={{ width: '250px', height: '35px' }}
             >
-              {isRefillNeeded ? 'Refill Dose' : (takenStates[medicine._id] ? 'Užito' : 'Neužito')}
+              {isRefillNeeded ? 'Refill Dose' : (isTaken ? 'Taken' : 'Not Taken')}
             </Button>
           </Flex>
         </Flex>
@@ -377,8 +370,6 @@ function Pilltaker() {
               dose = r.dose; // Set correct dose
             }
           });
-
-          console.log(`Rendering medicine in group: ${med.name}, dose: ${dose}`);
 
           return (
             <Group key={idx} style={{ marginLeft: '57px', marginTop: '5px' }}>
