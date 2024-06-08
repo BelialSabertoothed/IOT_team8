@@ -5,6 +5,7 @@ import { Modal, Button, Box, TextInput, Group, Input, NumberInput, rem, Text, Sc
 import { useForm } from '@mantine/form';
 import { IconTrash } from '@tabler/icons-react';
 import { SquarePlus } from 'lucide-react';
+import sendToServer from '../../utils/SendToServer';
 
 function CreateMedicine() {
   const {data: unitList} = useAxiosFetch(`/unit/list`)
@@ -16,7 +17,7 @@ function CreateMedicine() {
       name: '',
       unit: null,
       count: 0,
-      addPerRefill: 0,
+      addPerRefill: 1,
       notifications: true
     },
   
@@ -30,16 +31,24 @@ function CreateMedicine() {
   });
 
   async function handlSubmit(content){
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const medsTakerID = urlParams.get('medstaker')
     console.log("medicine create content:",content)
-    console.log("medicine create content reminder:",cards)
-      /*const result = await sendToServer(`/medsTaker/create`, content);
-      if (result) {
-        setOpen(false) //close TODO
-        props.refreshData()
-      }else {
-        alert('something went wrong')
-      }*/
-  } 
+    console.log("medicine create medsTakerID:",medsTakerID)
+    console.log("medicine create reminder:",cards)
+    content.medsTaker=medsTakerID
+    content.reminder=cards
+    content.history=[]
+    console.log("medicine create request:",content)
+    const result = await sendToServer(`/medicine/create`, content);
+    if (result) {
+      close //close TODO
+      //props.refreshData()
+    }else {
+      alert('something went wrong')
+    }
+  };
 
   const listOfUnits = unitList?.map((unit) => (
     {value: unit._id, label: unit.name}    
@@ -111,9 +120,14 @@ function CreateMedicine() {
     console.log("amound value:",value)
     if ((value > 0) && (value < 256)){
       let onChangeValue = [...cards];
-      onChangeValue[index].dose = [value];
+      onChangeValue[index].dose = value;
       setCards(onChangeValue);
     }
+  };
+
+  const validateAmound = (value) => {
+    if ( Number.isInteger(value.floatValue)) {return true}
+    else {return false}
   };
 
   const handleDayChange = (value, index) => {
@@ -139,6 +153,17 @@ function CreateMedicine() {
     if(cards[index].recurrenceRule.byweekday.length == 7) return true
     else return false
   };
+
+  function validateDays() {
+    let result = true
+    cards.forEach((card) => {
+      console.log(card.recurrenceRule.byweekday.length)
+      if (card.recurrenceRule.byweekday.length == 0) {
+        result = false
+      }
+    })
+    return result
+  }
 
   const [step, setStep] = useState(0);
     
@@ -198,7 +223,7 @@ function CreateMedicine() {
                 <ScrollArea h={300} >
                   <div className="container">
                     {cards.map((item, index) => (
-                      <Card key={index} withBorder={true}>
+                      <Card key={index} withBorder={true} border-color='red'>
                         <Group>
                           <Select
                             allowDeselect={false}
@@ -219,13 +244,13 @@ function CreateMedicine() {
                         <NumberInput
                           w={162}
                           withAsterisk
+                          isAllowed={(value) => validateAmound(value)}
                           allowDecimal={false}
                           defaultValue={1}
-                          placeholder="Amount"
                           rightSection={amoundUnit}
                           rightSectionWidth={92}
                           min={1}
-                          max={511}
+                          max={255}
                           onChange={(value) => handleAmoundChange(value, index)}
                           hideControls
                         />
@@ -251,7 +276,7 @@ function CreateMedicine() {
                     <Button onClick={() => handl_add()}>Add badge</Button>
                   </Group>
                 </ScrollArea>
-                <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
+                <form onSubmit={form.onSubmit((values) => {validateDays()===true?handlSubmit(values):'TODO showError'})}>
                 <Group justify="space-between" mt="md">
                   <Button variant="default" onClick={() => setStep(0)}>Back</Button>
                   <Button type="submit">Create</Button>
