@@ -1,7 +1,7 @@
 import {React, useState} from 'react'
 import useAxiosFetch from '../../hooks/useAxiosFetch';
 import { useDisclosure  } from '@mantine/hooks';
-import { Modal, Button, Box, TextInput, Group, Input, NumberInput, rem, Text, ScrollArea, Chip, Switch, Card, Select, Stepper } from '@mantine/core';
+import { Modal, Button, Box, TextInput, Group, Input, NumberInput, rem, Text, ScrollArea, Chip, Switch, Card, Select, Stepper, ActionIcon } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconTrash } from '@tabler/icons-react';
 import { SquarePlus } from 'lucide-react';
@@ -43,8 +43,8 @@ function CreateMedicine() {
     console.log("medicine create request:",content)
     const result = await sendToServer(`/medicine/create`, content);
     if (result) {
-      close //close TODO
-      //props.refreshData()
+      close()
+      location.reload()
     }else {
       alert('something went wrong')
     }
@@ -57,8 +57,31 @@ function CreateMedicine() {
   const selectUnits = (
     <Select
       allowDeselect={false}
+      placeholder='unit'
       data={listOfUnits}
       rightSectionWidth={28}
+      styles={{
+        input: {
+          fontWeight: 500,
+          borderTopLeftRadius: 0,
+          borderBottomLeftRadius: 0,
+          width: rem(92),
+          marginRight: rem(-2),
+        },
+      }}
+      {...form.getInputProps('unit')}
+    />
+  );
+
+  const box = (<Box w={10} h={10} c={'white'}></Box>)
+  const selectUnitsDis = (
+    <Select
+      allowDeselect={false}
+      placeholder='unit'
+      data={listOfUnits}
+      rightSectionWidth={28}
+      disabled
+      rightSection={box}
       styles={{
         input: {
           fontWeight: 500,
@@ -81,13 +104,14 @@ function CreateMedicine() {
     <Input
       rightSectionWidth={28}
       disabled
+      mt={0}
       styles={{
         input: {
           fontWeight: 500,
           borderTopLeftRadius: 0,
           borderBottomLeftRadius: 0,
-          width: rem(82),
-          marginRight: rem(-12),
+          width: rem(62),
+          marginRight: rem(-32),
         },
       }}
       value={unitName()}
@@ -166,11 +190,11 @@ function CreateMedicine() {
   }
 
   const [step, setStep] = useState(0);
-    
+  
   return (
     <>
-      <Modal opened={opened} onClose={close} title="Create Medicine">
-        <Box maw={340} mx="auto">
+      <Modal size={'lg'} opened={opened} onClose={close} title="Create Medicine" centered>
+      <Box maw={370} mx="auto">
           <Stepper active={step} onStepClick={setStep} allowNextStepsSelect={false}>
             <Stepper.Step label="Medicine" description="Add informations">
               <form>
@@ -180,35 +204,42 @@ function CreateMedicine() {
                   minLength={1}
                   label="Name of medicine"
                   placeholder="Name"
+                  mb={10}
                   {...form.getInputProps('name')}
                 />
-                <NumberInput
-                  withAsterisk
-                  label="The amount off medicine you possess"
-                  placeholder="Amount"
-                  min={0}
-                  max={511}
-                  rightSection={selectUnits}
-                  rightSectionWidth={92}
-                  {...form.getInputProps('count')}
-                />
-                <NumberInput
-                  withAsterisk
-                  label="Medicine amount per refill"
-                  placeholder="Amount"
-                  min={1}
-                  max={511}
-                  rightSection={selectUnits}
-                  rightSectionWidth={92}
-                  {...form.getInputProps('addPerRefill')}
-                />
+                <Group>
+                  <NumberInput
+                    name="Amount"
+                    withAsterisk
+                    label="Medicine amount per refill"
+                    placeholder="Amount"
+                    min={1}
+                    max={511}
+                    w={180}
+                    rightSection={selectUnits}
+                    rightSectionWidth={92}
+                    {...form.getInputProps('addPerRefill')}
+                  />
+                  <NumberInput
+                    withAsterisk
+                    label="Current amount medicine"
+                    placeholder="Amount"
+                    min={0}
+                    max={511}
+                    w={174}
+                    rightSection={selectUnitsDis}
+                    rightSectionWidth={92}
+                    {...form.getInputProps('count')}
+                  />
+                </Group>
                 <Switch
-                  labelPosition="left"
-                  label="I want receive notification"
+                  mt={20}
+                  labelPosition="right"
+                  label="I want receive notification on phone"
                   {...form.getInputProps('notifications',{type: 'checkbox'})}
                 />
                 <Group mb={80} mt={60} justify="space-between">
-                  <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
+                  <Button variant="light" onClick={close}>Cancel</Button>
                   <Button onClick={() => {{(
                     form.isValid('name')&&
                     form.isValid('count')&&
@@ -220,66 +251,76 @@ function CreateMedicine() {
             </Stepper.Step>
             <Stepper.Step label="Reminder" description="Set Reminder">
                 <Text mt={20} fw={500} size='sm'>Meds harmonogram *</Text>    
-                <ScrollArea h={300} >
+                <ScrollArea.Autosize mah={300} mx="auto" >
                   <div className="container">
                     {cards.map((item, index) => (
-                      <Card key={index} withBorder={true} border-color='red'>
+                      <Card mt={10} key={index} withBorder={true} bg={'#FFFEFE'}>
                         <Group>
                           <Select
+                            description="time"
                             allowDeselect={false}
                             defaultValue={'12'}
-                            w={70}
+                            mr={-10}
+                            mt={-5}
+                            w={65}
+                            withCheckIcon={false}
                             onChange={(value) => handleHourChange(value, index)}
                             data={[ '00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']}
                           />
-                          :
+                          <div style={{marginTop: '15px'}}>:</div>
                           <Select
                             allowDeselect={false}
                             defaultValue={'00'}
-                            w={70}
+                            ml={-10}
+                            mt={15}
+                            w={65}
+                            withCheckIcon={false}
                             onChange={(value) => handleMinuteChange(value, index)}
                             data={[ '00','15','30','45']}
                           />
-                        </Group>
-                        <NumberInput
-                          w={162}
-                          withAsterisk
-                          isAllowed={(value) => validateAmound(value)}
-                          allowDecimal={false}
-                          defaultValue={1}
-                          rightSection={amoundUnit}
-                          rightSectionWidth={92}
-                          min={1}
-                          max={255}
-                          onChange={(value) => handleAmoundChange(value, index)}
-                          hideControls
-                        />
+                          <NumberInput
+                            description="dose"
+                            ml={5}
+                            mt={-5}
+                            w={115}
+                            withAsterisk
+                            isAllowed={(value) => validateAmound(value)}
+                            allowDecimal={false}
+                            defaultValue={1}
+                            rightSection={amoundUnit}
+                            rightSectionWidth={92}
+                            min={1}
+                            max={255}
+                            onChange={(value) => handleAmoundChange(value, index)}
+                            hideControls
+                          />
+                          {cards.length > 1 && (
+                          <ActionIcon mt={15} variant="light" size={35}>
+                            <IconTrash component="button" onMouseEnter={() => console.log('grey')} onClick={() => handl_delete(index)} />
+                          </ActionIcon>
+                          )}
+                          </Group>
                         <Chip.Group multiple>
                           <Group justify='flex-start' mt={20}>
                             <Switch checked={handleWeekState(index)} onChange={() => handleWeekChange(index)}/>
                             <Chip ml={4} size='xs' checked={handleDayState(0, index)} onChange={() => handleDayChange(0, index)}>Monday</Chip>
-                            <Chip ml={4} size='xs' checked={handleDayState(1, index)} onChange={() => handleDayChange(1, index)}>Tuesday</Chip>
-                            <Chip ml={4} size='xs' checked={handleDayState(2, index)} onChange={() => handleDayChange(2, index)}>Wednesday</Chip>
-                            <Chip ml={4} size='xs' checked={handleDayState(3, index)} onChange={() => handleDayChange(3, index)}>Thursday</Chip>
-                            <Chip ml={4} size='xs' checked={handleDayState(4, index)} onChange={() => handleDayChange(4, index)}>Friday</Chip>
-                            <Chip ml={4} size='xs' checked={handleDayState(5, index)} onChange={() => handleDayChange(5, index)}>Saturday</Chip>
-                            <Chip ml={4} size='xs' checked={handleDayState(6, index)} onChange={() => handleDayChange(6, index)}>Sunday</Chip>
+                            <Chip ml={-4} size='xs' checked={handleDayState(1, index)} onChange={() => handleDayChange(1, index)}>Tuesday</Chip>
+                            <Chip ml={-4} size='xs' checked={handleDayState(2, index)} onChange={() => handleDayChange(2, index)}>Wednesday</Chip>
+                            <Chip ml={-4} size='xs' checked={handleDayState(3, index)} onChange={() => handleDayChange(3, index)}>Thursday</Chip>
+                            <Chip ml={-4} size='xs' checked={handleDayState(4, index)} onChange={() => handleDayChange(4, index)}>Friday</Chip>
+                            <Chip ml={-4} size='xs' checked={handleDayState(5, index)} onChange={() => handleDayChange(5, index)}>Saturday</Chip>
+                            <Chip size='xs' checked={handleDayState(6, index)} onChange={() => handleDayChange(6, index)}>Sunday</Chip>
                           </Group>
                         </Chip.Group>
-                        {cards.length > 1 && (
-                          <Button onClick={() => handl_delete(index)}>Delete</Button>
-                        )}
                       </Card>
                     ))}
                   </div>
-                  <Group mt="xl">
-                    <Button onClick={() => handl_add()}>Add badge</Button>
-                  </Group>
-                </ScrollArea>
+                </ScrollArea.Autosize>
+                <Button variant="light" mt={30} fullWidth onClick={() => handl_add()}>Add dose</Button>
                 <form onSubmit={form.onSubmit((values) => {validateDays()===true?handlSubmit(values):'TODO showError'})}>
                 <Group justify="space-between" mt="md">
-                  <Button variant="default" onClick={() => setStep(0)}>Back</Button>
-                  <Button type="submit">Create</Button>
+                  <Button variant="default" mb={40} onClick={() => setStep(0)}>Back</Button>
+                  <Button type="submit" mb={40}>Create</Button>
                 </Group> 
               </form> 
             </Stepper.Step>

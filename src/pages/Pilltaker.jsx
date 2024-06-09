@@ -45,7 +45,7 @@ function Pilltaker() {
       setTakenStates(initialState);
       const filteredAndGrouped = groupMedicinesByTime(filterMedicinesInNext48Hours(Medicine));
       setGroupedMedicines(filteredAndGrouped);
-      console.log("Filtered and Grouped Medicines:", filteredAndGrouped);
+      //console.log("Filtered and Grouped Medicines:", filteredAndGrouped);
     }
   }, [Medicine]);
 
@@ -104,7 +104,7 @@ const handleButtonClick = (id, dose) => {
     const hours = (ruleObj.BYHOUR || '').split(',').map(Number).filter(hour => !isNaN(hour)); // Filter out invalid hours
     const minutes = (ruleObj.BYMINUTE || '').split(',').map(Number).filter(min => !isNaN(min)); // Filter out invalid minutes
     const dose = reminder.dose || 0; // Ensure dose is included
-    console.log(`Parsed reminder: days: ${days}, hours: ${hours}, minutes: ${minutes}, dose: ${dose}`);
+    //console.log(`Parsed reminder: days: ${days}, hours: ${hours}, minutes: ${minutes}, dose: ${dose}`);
     return { days, hours, minutes, dose };
   };  
   
@@ -144,7 +144,7 @@ const handleButtonClick = (id, dose) => {
       });
     });
 
-    console.log(`Next dose time for ${medicine.name}:`, nextDose);
+    //console.log(`Next dose time for ${medicine.name}:`, nextDose);
     return nextDose;
   };
 
@@ -154,13 +154,13 @@ const handleButtonClick = (id, dose) => {
 
     const filteredMedicines = medicines.filter(medicine => {
       const nextDoseTime = getNextDoseTime(medicine);
-      console.log(`Next dose time for ${medicine.name}:`, nextDoseTime); // Log next dose time
+      //console.log(`Next dose time for ${medicine.name}:`, nextDoseTime); // Log next dose time
       const isInNext48Hours = nextDoseTime >= now && nextDoseTime <= in48Hours;
-      console.log(`Is ${medicine.name} in next 48 hours?`, isInNext48Hours);
+      //console.log(`Is ${medicine.name} in next 48 hours?`, isInNext48Hours);
       return isInNext48Hours;
     });
 
-    console.log("Filtered medicines in next 48 hours:", filteredMedicines);
+    //console.log("Filtered medicines in next 48 hours:", filteredMedicines);
     return filteredMedicines;
   };
 
@@ -182,7 +182,7 @@ const handleButtonClick = (id, dose) => {
       medicines: grouped[timeKey]
     })).sort((a, b) => a.time - b.time);
 
-    console.log("Grouped medicines by time:", groupedArray);
+    //console.log("Grouped medicines by time:", groupedArray);
     return groupedArray;
   };
 
@@ -206,7 +206,7 @@ const handleButtonClick = (id, dose) => {
                   const { days, hours, minutes, dose } = getReminderTimes(reminder);
                   if (days.includes(time.getDay()) && hours.includes(time.getHours()) && minutes.includes(time.getMinutes())) {
                     medicine.count -= dose;
-                    console.log(`Dose for ${medicine.name} deducted by ${dose}. Remaining count: ${medicine.count}`);
+                    //console.log(`Dose for ${medicine.name} deducted by ${dose}. Remaining count: ${medicine.count}`);
                   }
                 });
               }
@@ -219,7 +219,7 @@ const handleButtonClick = (id, dose) => {
   
       const newGroupedMedicines = groupMedicinesByTime(filterMedicinesInNext48Hours(updatedGroupedMedicines.flatMap(group => group.medicines)));
       setGroupedMedicines(newGroupedMedicines);
-      console.log("New Grouped Medicines after check:", newGroupedMedicines);
+      //console.log("New Grouped Medicines after check:", newGroupedMedicines);
   
       return updatedTakenStates;
     });
@@ -262,7 +262,7 @@ const handleButtonClick = (id, dose) => {
             }
           });
   
-          console.log(`Rendering medicine in group: ${med.name}, dose: ${dose}`);
+          //console.log(`Rendering medicine in group: ${med.name}, dose: ${dose}`);
   
           return (
             <Text
