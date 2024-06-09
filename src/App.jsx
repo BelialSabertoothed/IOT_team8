@@ -1,6 +1,9 @@
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import getFromServer from "./utils/GetFromServer";
+import { MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -27,7 +30,8 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <MantineProvider>
+    <Notifications position="bottom-right" />
       <UserContext.Provider value={{ user, setUser }}>
         <NavBar></NavBar>
         <Routes>
@@ -38,7 +42,7 @@ function App() {
             <Route path="/pilltaker" element={<Pilltaker />} />
         </Routes>
       </UserContext.Provider>
-    </div>
+    </MantineProvider>
   );
 }
 

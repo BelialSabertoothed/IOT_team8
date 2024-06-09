@@ -2,6 +2,7 @@ import {React, useState, useContext} from 'react'
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
 import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator, Button, Stack} from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import ModalLogin from '../components/Login/modalLogin';
 import {IconBatteryOff, IconArrowBackUp, IconArrowsUpDown} from '@tabler/icons-react'
 import { UserContext } from '../helpers/UserContext';
@@ -55,7 +56,13 @@ function Home() {
           <Box w={10} h={40} bg={"linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"}></Box>
         </Group>
       </Group>
-      {MedsTaker.phone_number[0] === '5'?<Overlay center color="#000" backgroundOpacity={0.7} blur={5} onClick={() => (console.log(`pair device ${MedsTaker._id}`))}>
+      {MedsTaker.phone_number[0] === '5'?<Overlay center color="#000" backgroundOpacity={0.7} blur={5} onClick={() =>
+          notifications.show({
+            title: `pair device ${MedsTaker._id}`,
+            message: 'It is default blue',
+            position: 'top-center'
+          })
+        }>
         <Stack align='center'>
           <IconArrowsUpDown color='white' justify='center' size={50}/>
           <Text ml={10} fw={700} size='lg' c={'white'} textWrap="wrap" lineClamp={2}>PAIR DEVICE</Text>   
