@@ -33,7 +33,7 @@ export default function useAxiosFetch(url) {
 
             if (isMounted.current) {
                 dispatch({ type: "SUCCESS", payload: result.data });
-                console.log(result.data)
+                console.log("Axios resuld data",result.data)
             }
         } catch (error) {
             if (isMounted.current) {
