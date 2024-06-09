@@ -11,7 +11,8 @@ function CreateMedicine() {
   const {data: unitList} = useAxiosFetch(`/unit/list`)
   const [opened, { close, open }] = useDisclosure(false);
   const [cards, setCards] = useState([{recurrenceRule: {byweekday: [],byhour: [12], byminute: [0]}, dose: 1}]);
-    
+  const [showDayError, setShowDayError] = useState(false);
+
   const form = useForm({
     initialValues: {
       name: '',
@@ -34,9 +35,6 @@ function CreateMedicine() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const medsTakerID = urlParams.get('medstaker')
-    console.log("medicine create content:",content)
-    console.log("medicine create medsTakerID:",medsTakerID)
-    console.log("medicine create reminder:",cards)
     content.medsTaker=medsTakerID
     content.reminder=cards
     content.history=[]
@@ -141,7 +139,6 @@ function CreateMedicine() {
   };
 
   const handleAmoundChange = (value, index) => {
-    console.log("amound value:",value)
     if ((value > 0) && (value < 256)){
       let onChangeValue = [...cards];
       onChangeValue[index].dose = value;
@@ -178,17 +175,27 @@ function CreateMedicine() {
     else return false
   };
 
-  function validateDays() {
+  function validateDaysAndSubmit(values) {
     let result = true
     cards.forEach((card) => {
-      console.log(card.recurrenceRule.byweekday.length)
       if (card.recurrenceRule.byweekday.length == 0) {
         result = false
       }
     })
-    return result
+    if(result) {
+      handlSubmit(values)
+    }
+    else {
+      setShowDayError(true)
+    }
   }
 
+  const validateDayError = (index) => {
+    if (showDayError == true && cards[index].recurrenceRule.byweekday.length == 0) {
+      return "Select at least one day"
+    }
+    return null
+  }
   const [step, setStep] = useState(0);
   
   return (
@@ -240,12 +247,12 @@ function CreateMedicine() {
                 />
                 <Group mb={80} mt={60} justify="space-between">
                   <Button variant="light" onClick={close}>Cancel</Button>
-                  <Button onClick={() => {{(
+                  <Button onClick={() => {(
                     form.isValid('name')&&
                     form.isValid('count')&&
                     form.isValid('addPerRefill')&&
                     form.isValid('unit')&&
-                    form.isValid('notifications'))===true?setStep(1):form.validate()};console.log(form.values)}}>Next</Button>
+                    form.isValid('notifications'))===true?setStep(1):form.validate()}}>Next</Button>
                 </Group>
               </form>
             </Stepper.Step>
@@ -300,7 +307,8 @@ function CreateMedicine() {
                           </ActionIcon>
                           )}
                           </Group>
-                        <Chip.Group multiple>
+                          <Input.Wrapper error={validateDayError(index)}>
+                        <Chip.Group multiple label="Ned selekt" labelcolor='red'>
                           <Group justify='flex-start' mt={20}>
                             <Switch checked={handleWeekState(index)} onChange={() => handleWeekChange(index)}/>
                             <Chip ml={4} size='xs' checked={handleDayState(0, index)} onChange={() => handleDayChange(0, index)}>Monday</Chip>
@@ -312,12 +320,13 @@ function CreateMedicine() {
                             <Chip size='xs' checked={handleDayState(6, index)} onChange={() => handleDayChange(6, index)}>Sunday</Chip>
                           </Group>
                         </Chip.Group>
+                        </Input.Wrapper>
                       </Card>
                     ))}
                   </div>
                 </ScrollArea.Autosize>
                 <Button variant="light" mt={30} fullWidth onClick={() => handl_add()}>Add dose</Button>
-                <form onSubmit={form.onSubmit((values) => {validateDays()===true?handlSubmit(values):'TODO showError'})}>
+                <form onSubmit={form.onSubmit((values) => validateDaysAndSubmit(values))}>
                 <Group justify="space-between" mt="md">
                   <Button variant="default" mb={40} onClick={() => setStep(0)}>Back</Button>
                   <Button type="submit" mb={40}>Create</Button>
