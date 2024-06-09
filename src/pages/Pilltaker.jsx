@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Grid, Box, Text, Title, useMantineTheme, Group, Card, Button, Stack, Flex, Checkbox, Modal
 } from '@mantine/core';
-import { IconSettings } from '@tabler/icons-react';
-import { TbPill } from 'react-icons/tb';
+import { IconSettings, IconPill } from '@tabler/icons-react';
+//import { TbPill } from 'react-icons/tb';
 import CreateMedicine from '../components/Medicine/createMedicine';
 import AlarmMedicine from '../components/Medicine/alarmMedicine';
 import useAxiosFetch from '../hooks/useAxiosFetch';
@@ -304,7 +304,7 @@ function Pilltaker() {
                 </Text>
               </Title>
               <Group style={{ marginLeft: 'auto' }}>
-                <TbPill
+                <IconPill //TbPill
                   size={20}
                   style={{ cursor: 'pointer', position: 'relative', top: '-10px' }}
                   onClick={() => handlePillClick(medicine)}
