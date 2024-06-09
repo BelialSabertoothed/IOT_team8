@@ -1,9 +1,9 @@
 import {React, useState, useContext} from 'react'
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
-import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator, Button} from '@mantine/core';
+import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator, Button, Stack} from '@mantine/core';
 import ModalLogin from '../components/Login/modalLogin';
-import {IconBatteryOff, IconArrowBackUp} from '@tabler/icons-react'
+import {IconBatteryOff, IconArrowBackUp, IconArrowsUpDown} from '@tabler/icons-react'
 import { UserContext } from '../helpers/UserContext';
 
 function Home() {
@@ -32,13 +32,10 @@ function Home() {
 
   console.log(Device)
   */
-  
-  //v pripade nesparovaneho zarizeni - bude potreba to vyresit lepe
-  const [unpaired, setPair] = useState(false);
 
   const addMedsTakerCart = <CreateMedsTaker refreshData={refreshData}></CreateMedsTaker>
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
-    <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={unpaired?null:"/pilltaker?medstaker="+MedsTaker._id}>
+    <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={MedsTaker.phone_number[0] === '5'/* unpaired */?null:"/pilltaker?medstaker="+MedsTaker._id}>
       <Group justify="end" mt="md" mb="xs">
         {(MedsTaker.phone_country_code === '420'?<Box w={10} h={20}></Box>:<IconBatteryOff style={{color: 'red'}}/>)}
         {(future === true && MedsTaker.phone_number[0] === '1' ? <Badge>Taken</Badge>
@@ -50,9 +47,7 @@ function Home() {
       <Group justify="start" pt={10}>
         {future === true && MedsTaker.phone_number[0] === '9' ? <Indicator label={<Image src={"../../pictures/flame.png"} h={20} w={20}></Image>} size={10} offset={11} position="bottom-end" color="transparent">
           <Avatar size="xl"/>
-        </Indicator>:<Avatar size="xl"/>}
-        
-        
+        </Indicator>:<Avatar size="xl"/>} 
         <Group>
           <Box w={127} mr={-26} /* bg={"linear-gradient(270deg, rgba(255, 0, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"} */>
             <Title textWrap="wrap" lineClamp={2}> {MedsTaker.name.split(" ")[0]}</Title>
@@ -60,7 +55,12 @@ function Home() {
           <Box w={10} h={40} bg={"linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"}></Box>
         </Group>
       </Group>
-      {unpaired && <Overlay color="#000" backgroundOpacity={0.5} />}
+      {MedsTaker.phone_number[0] === '5'?<Overlay center color="#000" backgroundOpacity={0.7} blur={5} onClick={() => (console.log(`pair device ${MedsTaker._id}`))}>
+        <Stack align='center'>
+          <IconArrowsUpDown color='white' justify='center' size={50}/>
+          <Text ml={10} fw={700} size='lg' c={'white'} textWrap="wrap" lineClamp={2}>PAIR DEVICE</Text>   
+        </Stack>
+      </Overlay>:null}
     </Card>
   ));
 
