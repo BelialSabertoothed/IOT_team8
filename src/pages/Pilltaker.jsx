@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Grid, Box, Text, Title, useMantineTheme, Group, Card, Button, Stack, Flex, Checkbox, Modal
 } from '@mantine/core';
-import { IconSettings, IconPill } from '@tabler/icons-react';
+import { IconSettings, IconPill, IconArrowBackUp, } from '@tabler/icons-react';
 //import { TbPill } from 'react-icons/tb';
 import CreateMedicine from '../components/Medicine/createMedicine';
 import AlarmMedicine from '../components/Medicine/alarmMedicine';
@@ -424,6 +424,9 @@ function Pilltaker() {
 
   return (
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900 }} mx="auto" mt={50}>
+      <Button mt={-130} mb={-40} ml={-20} onClick={() => (window.location.replace("/Home"))} leftSection={<IconArrowBackUp size={14} />} variant="transparent">
+        Home
+      </Button>
       <Grid justify="space-between">
         <Box w={{ base: '440px', xxs: '440px', xs: '440px', sm: '440px', md: '892px', lg: '892px', xl: '892px' }} h='50'>
           <Group justify="space-between">
@@ -436,7 +439,7 @@ function Pilltaker() {
         </Box>
         <Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
         {allPillCards}
-        <Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
+        {allPillCards<=0?null:<Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }} ></Box>}
         {groupedPillCards}
       </Grid>
       <Modal

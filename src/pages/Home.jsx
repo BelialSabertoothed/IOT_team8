@@ -4,7 +4,7 @@ import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
 import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator, Button, Stack} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import ModalLogin from '../components/Login/modalLogin';
-import {IconBatteryOff, IconArrowBackUp, IconArrowsUpDown} from '@tabler/icons-react'
+import {IconBatteryOff, IconArrowsUpDown} from '@tabler/icons-react'
 import { UserContext } from '../helpers/UserContext';
 
 import Errors from '../components/Alerts/Errors';
@@ -89,9 +89,6 @@ function Home() {
   )}
   else return (  
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900}} mx="auto" mt={50}>
-      <Button mt={-100} mb={-10} ml={-20} onClick={() => (window.location.replace("/Home"))} leftSection={<IconArrowBackUp size={14} />} variant="transparent">
-        Back (na pilltaker)
-      </Button>
       <Box w={{ base: 280, xxs: 280, xs: 280, sm: 600, md: 900, lg: 900, xl: 900}} h='50'>
         <Group justify="space-between">
           <Title>{user? user.firstName +" "+ user.lastName : "user.name"}</Title>
