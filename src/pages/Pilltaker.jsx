@@ -131,9 +131,16 @@ function Pilltaker() {
   }
 
   const getNextMedicineTime = (reminder) => {       /*Neded*/
+    const now = new Date()
     let arreyNextTime = []
     reminder.forEach(element => {
-      arreyNextTime.push({time:RRule.fromString(element.recurrenceRule+";COUNT=1").all()[0],dose:element.dose})
+      let rule = RRule.fromString(element.recurrenceRule)
+      rule.options.count=1
+      rule.options.dtstart= new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 
+        now.getUTCHours() + 1, now.getUTCMinutes(), 0))
+      arreyNextTime.push({time:rule.all()[0],dose:element.dose})
+      //arreyNextTime.push({time:RRule.fromString(element.recurrenceRule+";COUNT=1").all()[0],dose:element.dose})
     });
     return arreyNextTime.sort((a, b) => (a.time.getTime() > b.time.getTime()) ? 1 : -1)
   }
@@ -150,11 +157,11 @@ function Pilltaker() {
     return { days, hours, minutes, dose };
   };
 
-  const pillCanBeTaken = (medicine) => {
+  const pillCanBeTaken = (medicine) => {     /*Neded*/
     return false //TODO 
   }
 
-  const takePill = (medicine) => {
+  const takePill = (medicine) => {         /*Neded*/
     //TODO 
   }
 
@@ -284,7 +291,7 @@ function Pilltaker() {
         dailyTimes.push(time);
       } else {
         specificTimes.push(
-          `${days.map(day => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]).join(', ')} at ${time}`
+          `${days.map(day => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][day]).join(', ')} at ${time}`
         );
       }
     });
