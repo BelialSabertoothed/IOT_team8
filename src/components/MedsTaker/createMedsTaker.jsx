@@ -5,6 +5,9 @@ import { useForm, hasLength } from '@mantine/form';
 import { SquarePlus } from 'lucide-react';
 import sendToServer from '../../utils/SendToServer';
 
+import axios from "axios";
+const mainUrl = import.meta.env.VITE_API_URL;
+
 const prep_country_code = [
   { value: '420', label: '+420' },
   { value: '544', label: '+544' },
@@ -21,19 +24,20 @@ function CreateMedsTaker(props) {
       name: '',
       phone_country_code: '420',
       phone_number: '',
-      pair:''
+      device:''
     },
 
     validate: {
       name: (value) => (/[a-z]/.test(value) ? null : 'Requested'),
       phone_country_code: (value) => (/[0-9]/.test(value) ? null : 'Requested'),
       phone_number: (value) => (/[0-9]{3}\s[0-9]{3}\s[0-9]{3}|[0-9]{9}/.test(value) ? null : 'Requested'),
-      pair: hasLength({ min: 5, max: 5 }, ' '),
+      device: hasLength({ min: 5, max: 5 }, ' '),
     },
   });
 
   async function handlSubmit(content){
-    delete content.pair;
+    const Device = await axios.get(`${mainUrl}/device/getByCode/${content.device}`, { withCredentials: true })
+    content.device=`${(Device.data)._id}`
     /*const response = await fetch("http://localhost:3001/medsTaker/create", 
       {
         method: 'POST',
@@ -107,7 +111,7 @@ function CreateMedsTaker(props) {
             </Stepper.Step>
             <Stepper.Step label="Device" description="Pair device">
               <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
-                <PinInput ml={45} mt={80} mb={100} size="md" length={5} {...form.getInputProps('pair')}/>
+                <PinInput ml={45} mt={80} mb={100} size="md" length={5} {...form.getInputProps('device')}/>
                 <Group mb={80} mt={60} justify="space-between">
                   <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
                   <Group>
