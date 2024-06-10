@@ -4,6 +4,7 @@ import { IconX, IconCheck } from '@tabler/icons-react';
 import { TextInput, Checkbox, Button, Group, Box, Title, PasswordInput, Progress, Text, Popover, rem } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import sendToServer from '../utils/SendToServer';
+import Errors from '../components/Alerts/Errors';
 
 //Password functions
 function PasswordRequirement({ meets, label }) {
@@ -68,7 +69,7 @@ function Register() {
     const result = await sendToServer(`/user/register`, values);
     if (result) {
       window.location.replace("/login");
-      alert('Registration was successful')
+      Errors(1,1,1,'ahoj')
     }
   }
 

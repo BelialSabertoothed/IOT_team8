@@ -7,6 +7,8 @@ import ModalLogin from '../components/Login/modalLogin';
 import {IconBatteryOff, IconArrowBackUp, IconArrowsUpDown} from '@tabler/icons-react'
 import { UserContext } from '../helpers/UserContext';
 
+import Errors from '../components/Alerts/Errors';
+
 function Home() {
   const {
     isLoading: MedsTakersPending,
@@ -72,7 +74,7 @@ function Home() {
   ));
 
   if (MedsTakersPending) {return <Box maw={{ base: 30, xxs: 30, xs: 30, sm: 30, md: 30, lg: 30, xl: 30}} mx="auto" mt={50}><Loader size={30} color='vioet' /></Box>;}
-  else if (MedsTakersError) {return (
+  else if (MedsTakersError) {Errors(errorStatus,errorMessage ); return (
   <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 500, md: 500, lg: 500, xl: 500}} mx="auto" mt={80} align='center'>
     <Image
       h={{ base: 272, xxs: 272, xs: 272, sm: 450, md: 450, lg: 450, xl: 450}}
