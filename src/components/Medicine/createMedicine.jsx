@@ -102,6 +102,7 @@ function CreateMedicine() {
     <Input
       rightSectionWidth={28}
       disabled
+      mr={20}
       mt={0}
       styles={{
         input: {
@@ -295,7 +296,7 @@ function CreateMedicine() {
                             allowDecimal={false}
                             defaultValue={1}
                             rightSection={amoundUnit}
-                            rightSectionWidth={92}
+                            rightSectionWidth={72}
                             min={1}
                             max={255}
                             onChange={(value) => handleAmoundChange(value, index)}
