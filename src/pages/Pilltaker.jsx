@@ -5,6 +5,7 @@ import {
 import { IconSettings, IconPill, IconArrowBackUp, } from '@tabler/icons-react';
 //import { TbPill } from 'react-icons/tb';
 import CreateMedicine from '../components/Medicine/createMedicine';
+import UpdateMedicine from '../components/Medicine/updateMedicine';
 import AlarmMedicine from '../components/Medicine/alarmMedicine';
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import sendToServer from '../utils/SendToServer';
@@ -61,11 +62,11 @@ function Pilltaker() {
   async function handleConfirmAddDose() {        /*Neded*/
     if (selectedMedicine) {
       selectedMedicine.count += selectedMedicine.addPerRefill;
-      translateReminder(selectedMedicine.reminder)
+      const translatedReminder = translateReminder(selectedMedicine.reminder)
       const id = selectedMedicine._id
       const request ={
         count: selectedMedicine.count,
-        reminder: selectedMedicine.reminder
+        reminder: translatedReminder
       }
       console.log("medicine ubdate request:",request)
       const result = await sendToServer(`/medicine/update/`+id, request);
@@ -84,10 +85,12 @@ function Pilltaker() {
     setSelectedMedicine(null);
   } 
   
-  const translateReminder = (reminder) => {         /*Neded*/
-    reminder.forEach(element => {
+  const translateReminder = (reminder) => {  
+  let clonedArray = reminder.map(a => {return {...a}})       /*Neded*/
+  clonedArray.forEach(element => {
       element.recurrenceRule = translateRRuleSring(element.recurrenceRule)
     });
+    return clonedArray
   }
 
   const translateRRuleSring = (rruleStrig) => {     /*Neded*/
@@ -265,11 +268,7 @@ function Pilltaker() {
                   style={{ cursor: 'pointer', position: 'relative', top: '-10px' }}
                   onClick={() => handlePillClick(medicine)}
                 />
-                <IconSettings
-                  size={20}
-                  style={{ cursor: 'pointer', position: 'relative', top: '-10px' }}
-                  /*onClick={() => update}*/
-                />
+                <UpdateMedicine medicine={medicine} reminder={translateReminder(medicine.reminder)}/>
               </Group>
             </Group>
             <Text size="sm">{formatReminderTimes(medicine.reminder)}</Text>
