@@ -21,7 +21,7 @@ function LoginForm(promps) {
     const result = await sendToServer(`/user/login`, values);
     if (result) {
         setUser(result);
-        (promps.modal === true ? window.location.reload() : window.location.replace("/Home"))
+        /*(promps.modal === true ? window.location.reload() : window.location.replace("/Home"))*/
     }
     else {
       console.log('invalid email or pasword')
