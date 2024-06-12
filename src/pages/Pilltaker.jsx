@@ -17,7 +17,6 @@ import listPlugin from '@fullcalendar/list';
 
 
 import { RRule } from 'rrule'
-im
 
 function Pilltaker() {
   const theme = useMantineTheme();
