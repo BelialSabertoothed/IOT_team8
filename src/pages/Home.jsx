@@ -1,11 +1,12 @@
 import {React, useState, useContext} from 'react'
 import useAxiosFetch from '../hooks/useAxiosFetch';
 import CreateMedsTaker from '../components/MedsTaker/createMedsTaker';
-import { Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator, Button, Stack} from '@mantine/core';
+import { useMantineTheme, Loader, Card, Grid, Text, Avatar, Box, Title, Group, Image, Badge, Overlay, Indicator, Button, Stack} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import ModalLogin from '../components/Login/modalLogin';
-import {IconBatteryOff, IconArrowsUpDown} from '@tabler/icons-react'
+import {IconBatteryOff,IconBattery, IconBattery1,IconBattery2, IconBattery3, IconBattery4, IconArrowsUpDown} from '@tabler/icons-react'
 import { UserContext } from '../helpers/UserContext';
+import PairMedsTaker from '../components/MedsTaker/pairMedsTaker';
 
 import Errors from '../components/Alerts/Errors';
 
@@ -13,6 +14,7 @@ import Errors from '../components/Alerts/Errors';
 const mainUrl = import.meta.env.VITE_API_URL; */
 
 function Home() {
+  const theme = useMantineTheme();
   const {
     isLoading: MedsTakersPending,
     data: MedsTakers,
@@ -38,8 +40,14 @@ function Home() {
   const addMedsTakerCart = <CreateMedsTaker refreshData={refreshData}></CreateMedsTaker>
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
     <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={MedsTaker.device === null/* unpaired */?null:"/pilltaker?medstaker="+MedsTaker._id}>
-      <Group justify="end" mt="md" mb="xs">
-        {(MedsTaker.phone_country_code === '420'/* Device.battery<20 */?<Box w={10} h={20}></Box>:<IconBatteryOff style={{color: 'red'}}/>)}
+      <Group justify="end" mt="md" mb={0}>
+        {(MedsTaker.device!==null?(MedsTaker.battery <= 3 ? <IconBatteryOff size={25} style={{color: 'red'}}/>
+          :  MedsTaker.battery <= 15 && MedsTaker.battery > 3 ? <IconBattery size={28} style={{color: 'red'}}/>
+          :  MedsTaker.battery <= 30 && MedsTaker.battery > 15 ? <IconBattery1 size={28} style={{color: 'orange'}}/>
+          : MedsTaker.battery <= 50 && MedsTaker.battery > 30 ?<IconBattery2 size={28} style={{color: theme.colors.gray[5]}}/>
+          : MedsTaker.battery <= 75 && MedsTaker.battery > 50 ?<IconBattery3 size={28} style={{color: theme.colors.gray[5]}}/>
+          : MedsTaker.battery > 85 ?<IconBattery4 size={28} style={{color: '#7DDA58'}}/>
+          : <Box w={10} h={30}></Box>):<Box w={10} h={30}></Box>)}
         {(future === true && MedsTaker.phone_number[0] === '1' ? <Badge>Taken</Badge>
           : future === true && MedsTaker.phone_number[0] === '9' ? <Badge variant='light'>Reminded</Badge>
           : future === true && MedsTaker.phone_number[0] === '5' ? <Badge color='red'>Forgoten</Badge>
@@ -57,18 +65,7 @@ function Home() {
           <Box w={10} h={40} bg={"linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"}></Box>
         </Group>
       </Group>
-      {MedsTaker.device === null?<Overlay center color="#000" backgroundOpacity={0.7} blur={5} onClick={() =>
-          notifications.show({
-            title: `pair device ${MedsTaker._id}`,
-            message: 'It is default blue',
-            position: 'top-center'
-          })
-        }>
-        <Stack align='center'>
-          <IconArrowsUpDown color='white' justify='center' size={50}/>
-          <Text ml={10} fw={700} size='lg' c={'white'} textWrap="wrap" lineClamp={2}>PAIR DEVICE</Text>   
-        </Stack>
-      </Overlay>:null}
+      {MedsTaker.device === null?<PairMedsTaker mesdTakerName={MedsTaker.name} medsTakerId={MedsTaker._id} ></PairMedsTaker>:null}
     </Card>
   ));
 

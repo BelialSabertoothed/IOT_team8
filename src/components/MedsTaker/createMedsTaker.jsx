@@ -30,12 +30,14 @@ function CreateMedsTaker(props) {
     validate: {
       name: (value) => (/[a-z]/.test(value) ? null : 'Requested'),
       phone_country_code: (value) => (/[0-9]/.test(value) ? null : 'Requested'),
-      phone_number: (value) => (/[0-9]{3}\s[0-9]{3}\s[0-9]{3}|[0-9]{9}/.test(value) ? null : 'Requested'),
+      phone_number: (value) => (value === '' ?null:(/[0-9]{3}\s[0-9]{3}\s[0-9]{3}|[0-9]{9}/.test(value) ? null : 'Wrong number')),
       device: hasLength({ min: 5, max: 5 }, ' '),
     },
   });
 
   async function handlSubmit(content){
+    (content.phone_number=== '' ?  (delete content.phone_country_code, delete content.phone_number):null)
+    console.log(content)
     const Device = await axios.get(`${mainUrl}/device/getByCode/${content.device}`, { withCredentials: true })
     content.device=`${(Device.data)._id}`
     /*const response = await fetch("http://localhost:3001/medsTaker/create", 
@@ -80,46 +82,49 @@ function CreateMedsTaker(props) {
   const nextStep = () => setStep((currentStep) => (currentStep < 1 ? currentStep + 1 : currentStep));
   const prevStep = () => setStep((currentStep) => (currentStep > 0 ? currentStep - 1 : currentStep));
 
+  let MedsTakerInfo = <form>
+  <TextInput
+      mt={40}
+      withAsterisk
+      label="Name of meds taker"
+      placeholder="Name"
+      {...form.getInputProps('name')}
+  />
+  <TextInput
+      label="Phone number of meds taker"
+      leftSection={selectPhone}
+      leftSectionWidth={110}
+      placeholder="000 000 000"
+      /* mask="000 000 000" */
+      {...form.getInputProps('phone_number')}
+  />
+  <Group mb={80} mt={60} justify="space-between">
+    <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
+    <Button onClick={() => {{form.isValid('name')===true && form.isValid('phone_number')===true?setStep((currentStep) => (currentStep < 1 ? currentStep + 1 : currentStep)):form.validate()};console.log(form.values)}}>Next</Button>
+  </Group>
+</form>
+
+  let DeviceCode = <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
+  <PinInput ml={45} mt={80} mb={100} size="md" length={5} {...form.getInputProps('device')}/>
+  <Group mb={80} mt={60} justify="space-between">
+    <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
+    <Group>
+      <Button variant="default" onClick={prevStep}>Back</Button>
+      <Button type="submit">Create</Button>
+    </Group>
+  </Group>
+</form>
+
   return (
     <>
       <Modal size={'lg'} opened={open} onClose={() => setOpen(false)} title="Create new meds taker" centered>
         <Box maw={340} mx="auto">
           <Stepper active={step} onStepClick={setStep} allowNextStepsSelect={false}>
-            <Stepper.Step label="MedsTaker" description="Add informations">
-              <form>
-                  <TextInput
-                      mt={40}
-                      withAsterisk
-                      label="Name of meds taker"
-                      placeholder="Name"
-                      {...form.getInputProps('name')}
-                  />
-                  <TextInput
-                      withAsterisk
-                      label="Phone number of meds taker"
-                      leftSection={selectPhone}
-                      leftSectionWidth={110}
-                      placeholder="000 000 000"
-                      /* mask="000 000 000" */
-                      {...form.getInputProps('phone_number')}
-                  />
-                  <Group mb={80} mt={60} justify="space-between">
-                    <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={() => {{form.isValid('name')===true && form.isValid('phone_number')===true?setStep((currentStep) => (currentStep < 1 ? currentStep + 1 : currentStep)):form.validate()};console.log(form.values)}}>Next</Button>
-                  </Group>
-                </form>
+            <Stepper.Step label="MedsTaker">
+              {MedsTakerInfo}
             </Stepper.Step>
-            <Stepper.Step label="Device" description="Pair device">
-              <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
-                <PinInput ml={45} mt={80} mb={100} size="md" length={5} {...form.getInputProps('device')}/>
-                <Group mb={80} mt={60} justify="space-between">
-                  <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
-                  <Group>
-                    <Button variant="default" onClick={prevStep}>Back</Button>
-                    <Button type="submit">Create</Button>
-                  </Group>
-                </Group>
-              </form>
+            <Stepper.Step label="Device">
+              {DeviceCode}
             </Stepper.Step>
           </Stepper>
 
