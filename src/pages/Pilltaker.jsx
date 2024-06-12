@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Grid, Box, Text, Title, useMantineTheme, Group, Card, Button, Stack, Flex, Checkbox, Modal
+  Grid, Box, Text, Title, useMantineTheme, Group, Card, Button, Stack, Flex, Checkbox, Modal, Badge,
+  ScrollArea, Accordion
 } from '@mantine/core';
-import { IconSettings, IconPill, IconArrowBackUp, } from '@tabler/icons-react';
-//import { TbPill } from 'react-icons/tb';
+import { DatePickerInput } from '@mantine/dates';
+import { IconSettings, IconPill, IconArrowBackUp, IconPlus } from '@tabler/icons-react'
 import CreateMedicine from '../components/Medicine/createMedicine';
 import UpdateMedicine from '../components/Medicine/updateMedicine';
 import AlarmMedicine from '../components/Medicine/alarmMedicine';
@@ -41,23 +42,73 @@ function Pilltaker() {
     errorMessage: UnitsErrorMessage,
     refetch: UnitsRefresh
   } = useAxiosFetch(`/unit/list`);
+  const now = new Date()
   const MedicineCanBeTaken = []   //TODO get from server
   const [groupedMedicines, setGroupedMedicines] = useState([]);
   const [modalOpened, setModalOpened] = useState(false);            /*Neded*/
   const [selectedMedicine, setSelectedMedicine] = useState(null);   /*Neded*/
+  const [historyGroupedMedicines, setHistoryGroupedMedicines] = useState([]);
+  const [historyStart, setHistoryStart] = useState(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()-1, 0, 0, 0)))
+  const [historyEnd, setHistoryEnd] = useState(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)));
 
+  //filter medicine in 24h
   useEffect(() => {
     if (Medicine) {
       console.log("Medicine data loaded:", Medicine);
       const filteredAndGrouped = MedicinesInNext24Hours(MedicineCanBeTaken,Medicine);
+      const getDoneMedicine = MedicinesInLast24Hours(Medicine);
       setGroupedMedicines(filteredAndGrouped);
     }
   }, [Medicine]);
+
+  useEffect(() => {
+    if (Medicine) {
+      console.log("Medicine data loaded:", Medicine);
+      const filteredAndGrouped = HistoryOfMediciness(Medicine, historyStart, historyEnd);
+      setHistoryGroupedMedicines(filteredAndGrouped);
+    }
+  }, [Medicine,historyStart,historyEnd]);
+
+  function parseISOString(s) {
+    var b = s.split(/\D+/);
+    return new Date(Date.UTC(b[0], --b[1], b[2], b[3], b[4], b[5], b[6]));
+  }
+
+  const HistoryOfMediciness = (medicines, startTime, endTime) => {
+    let timedHistoty = []
+    medicines.forEach(medicine => {
+      medicine.history.forEach(item => {
+        console.log("history item:",parseISOString(item.endDate))
+        console.log("history startTime:",startTime)
+        console.log("history endTime:",endTime)
+      if (parseISOString(item.endDate).valueOf() > startTime.valueOf() && parseISOString(item.endDate).valueOf() < endTime.valueOf()) {
+        console.log("history item:",item)
+        timedHistoty.unshift({medicine:medicine, time:item.endDate, dose:item.dose, state: item.state})
+      }
+    })
+    });
+    
+    const grouped = {};
+    timedHistoty.forEach((medicine) => {
+      if (!grouped[medicine.time.slice(0, 16)]) {
+        grouped[medicine.time.slice(0, 16)] = [];
+      }
+      grouped[medicine.time.slice(0, 16)].push(medicine);
+    });
+
+    const groupedArray = Object.keys(grouped).map((timeKey) => ({
+      time:grouped[timeKey][0].time,
+      medicines: grouped[timeKey]
+    }))
+    return groupedArray;
+  
+  }
 
   const handlePillClick = (medicine) => {     /*Neded*/
     setSelectedMedicine(medicine);
     setModalOpened(true);
   };
+
 
   async function handleConfirmAddDose() {        /*Neded*/
     if (selectedMedicine) {
@@ -138,6 +189,63 @@ function Pilltaker() {
     //TODO 
   }
 
+//--------------------
+
+  const MedicinesInLast24Hours = (medicines) => {
+    const now = new Date();
+    const in24Hours = new Date(
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() - 1, 
+      now.getHours(), now.getMinutes(), 0)) // 24 hours from now
+    let lastMedicineIn24hour = []
+    medicines.forEach(meds => {
+      const history = meds.history
+      const medicineId = meds._id
+      if (history.length > 0) {
+        history.map(historyDose => {//TODO add function checking history by index (for faster sort) 
+          lastMedicineIn24hour.push({medicineId:medicineId, state: historyDose.state})})
+        console.log(lastMedicineIn24hour)
+      }
+    })
+    console.log("time 24:",in24Hours)
+    medicines.forEach(medicin => {
+      const nextMedicine = getNextMedicineTime(medicin.reminder)
+      console.log("nextMedicine:",nextMedicine)
+      nextMedicine.forEach(item => {
+        if(item.time.valueOf() < in24Hours.valueOf()) {
+          const usedDoseIndex = usedDose.map(e => e.id).indexOf(medicin._id)
+
+          if (usedDoseIndex == -1) {
+            usedDose.push({id:medicin._id, dose:item.dose})
+            nextMedicineIn24hour.push({medicine:medicin, time:item.time, dose:item.dose, dosesUntilNow:item.dose, canBeTaken:false})
+          }
+          else {
+            usedDose[usedDoseIndex].dose += item.dose
+            nextMedicineIn24hour.push({medicine:medicin, time:item.time, dose:item.dose, dosesUntilNow:usedDose[usedDoseIndex].dose, canBeTaken:false})
+          }
+        }
+      })
+    });
+    /*nextMedicineIn24hour.sort((a, b) => (a.time > b.time) ? 1 : -1)
+    console.log("nextMedicineIn24hour:",nextMedicineIn24hour)
+    const grouped = {};
+    nextMedicineIn24hour.forEach((medicine) => {
+      if (!grouped[medicine.time.toISOString().slice(0, 16)]) {
+        grouped[medicine.time.toISOString().slice(0, 16)] = [];
+      }
+      grouped[medicine.time.toISOString().slice(0, 16)].push(medicine);
+    });
+
+    const groupedArray = Object.keys(grouped).map((timeKey) => ({
+      time:grouped[timeKey][0].time,
+      canBeTaken:grouped[timeKey][0].canBeTaken,
+      medicines: grouped[timeKey]
+    })).sort((a, b) => a.time - b.time);
+    console.log("grouped nextMedicineIn24hour:",groupedArray)
+    return groupedArray; */
+  }; 
+
+  //-----------------------------------------------------------
+
   const MedicinesInNext24Hours = (MedicineCanBeTaken, medicines) => {
     const now = new Date();
     const in24Hours = new Date(
@@ -200,32 +308,21 @@ function Pilltaker() {
     return unit ? unit.name : '';
   };
 
-  const formatReminderTimes = (reminders) => {    /*Neded*/
-    const dailyTimes = [];
-    const specificTimes = [];
+  const formatReminderTimes = (reminders, unit) => {    /*Neded*/
+    const everyTimes = [];
 
     reminders.forEach(rem => {
-      const { days, hours, minutes } = getReminderTimes(rem);
+      const { days, hours, minutes, dose } = getReminderTimes(rem);
       const time = `${hours[0]}:${minutes[0] < 10 ? `0${minutes[0]}` : minutes[0]}`;
       if (days.length === 7) {
-        dailyTimes.push(time);
+        everyTimes.push(`${time} - Daily / ${dose} ${getUnitName(unit)}`)
       } else {
-        specificTimes.push(
-          `${days.map(day => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][day]).join(', ')} at ${time}`
+        everyTimes.push(
+          `${time} - ${days.map(day => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][day]).join(', ') } / ${dose} ${getUnitName(unit)}`
         );
       }
     });
-
-    let result = '';
-    if (dailyTimes.length > 0) {
-      result += `Daily at ${dailyTimes.join(' and ')}`;
-    }
-    if (specificTimes.length > 0) {
-      if (result) result += '; ';
-      result += specificTimes.join('; ');
-    }
-
-    return result;
+    return everyTimes;
   };
 
   // Always render all medicines
@@ -234,6 +331,10 @@ function Pilltaker() {
     const nextDose = getNextMedicineTime(medicine.reminder)[0]
     const isRefillNeeded = medicine.count < nextDose.dose;
     const canBeTaken = pillCanBeTaken(medicine)
+    const dataText = formatReminderTimes(medicine.reminder, medicine.unit)
+    console.log(dataText)
+
+    let dates = dataText.map((element) => (<Text size="sm" mb={5}>{element}</Text>))
     
     return (
       <Card 
@@ -250,40 +351,33 @@ function Pilltaker() {
         <Flex direction="column" justify="space-between" h="100%">
           <Stack spacing="lg">
             <Group position="apart">
-              <Title order={4} style={{ marginBottom: '0.5rem' }}>
-                {medicine.name}
-                <Text
-                  size="xs"
-                  style={{
-                    display: 'inline',
-                    marginLeft: '8px'
-                  }}
-                >
-                  {nextDose.dose || 0} {unitName}
-                </Text>
-              </Title>
+              <Group>
+                <Box w={205} mt={-5}>
+                  <Title order={4} textWrap="nowrap" lineClamp={2}> {medicine.name} </Title>
+                </Box>
+                <Box w={10} mt={-10} h={30} ml={-25} bg={isRefillNeeded ?"linear-gradient(270deg, rgba(233, 236, 239) 0%, rgba(0, 0, 0, 0) 100%)":"linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"}></Box>
+              </Group>
               <Group style={{ marginLeft: 'auto' }}>
-                <IconPill //TbPill
-                  size={20}
-                  style={{ cursor: 'pointer', position: 'relative', top: '-10px' }}
-                  onClick={() => handlePillClick(medicine)}
-                />
                 <UpdateMedicine medicine={medicine} reminder={translateReminder(medicine.reminder)}/>
               </Group>
             </Group>
-            <Text size="sm">{formatReminderTimes(medicine.reminder)}</Text>
-            <Text size="sm"> Doses left: {medicine.count} {unitName} </Text>
+            <ScrollArea /* bg={'red'} */ h={80} mb={1} type="auto">
+              {dates}
+            </ScrollArea>
           </Stack>
-          <Flex mt="auto" justify="center">
-            <Button
-              variant="filled"
-              color={isRefillNeeded ? 'gray' : canBeTaken ? 'purple' : 'black'}
-              onClick={() => isRefillNeeded ? handlePillClick(medicine) : canBeTaken ? takePill() : null}
-              style={{ width: '250px', height: '35px' }}
-            >
-              {isRefillNeeded ? 'Refill Dose' : canBeTaken ? 'Take Medicine' : 'Next on '+ nextDose.time.toUTCString().slice(0, 22)}
-            </Button>
-          </Flex>
+          <Button
+             h={35}
+            variant="filled"
+            color={isRefillNeeded ? 'gray' : /* canBeTaken ? */ 'purple' /* : 'black' */}
+            onClick={() => /* isRefillNeeded ?  */handlePillClick(medicine)/*   : canBeTaken ? takePill() : null */}
+          >
+            {isRefillNeeded ? 'Refill Dose' : /* canBeTaken ? 'Take Medicine' : */ <Group justify="space-between"><div>Doses left: {medicine.count} {unitName}</div>
+            <IconPlus //TbPill
+                size={20}
+                style={{marginLeft: '40px'}}
+              />
+              </Group>/* 'Next on '+ nextDose.time.toUTCString().slice(0, 22) */}
+          </Button>
         </Flex>
       </Card>
     );
@@ -295,6 +389,7 @@ function Pilltaker() {
     const dayOfWeek = localTime.toLocaleString('en-US', { weekday: 'long' });
     const date = localTime.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const time = localTime.getUTCHours();
+    //const canBeTaken = pillCanBeTaken(medicine)
     console.log("group:",group)
     return (
       <Card
@@ -308,8 +403,12 @@ function Pilltaker() {
         shadow="sm"
         style={{ backgroundColor: group.canBeTaken ? 'white':theme.colors.gray[2]}}
       >
-        <Group position="apart">
-          <Title order={5}>{group.canBeTaken?"NOW":group.time.toUTCString().slice(0, 22)}</Title>
+        <Group justify="space-between">
+          <Group>
+          {group.canBeTaken ? <Checkbox onClick={() => /*handleGroupCheck(group.time)*/{}} ></Checkbox>:null}
+            <Title order={5}>{group.canBeTaken?"NOW":group.time.toUTCString().slice(0, 22)}</Title>
+          </Group>
+          <Badge variant="outline" mr={10}>Prepared</Badge>
         </Group>
         {group.medicines.map((med, idx) => {
           return (
@@ -328,8 +427,74 @@ function Pilltaker() {
     );
   });
 
+  const historyGroupedPillCards = historyGroupedMedicines.map((group, index) => {   
+    console.log("group:",group)
+    return (
+      <Card
+        key={index}
+        w='440px'
+        h='150px'
+        mt={20}
+        withBorder={true}
+        radius={10}
+        p='10px'
+        shadow="sm"
+        style={{ backgroundColor: 'white'}}
+      >
+        <Group position="apart">
+          <Title order={5}>{parseISOString(group.time).toUTCString().slice(0, 22)}</Title>
+        </Group>
+        {group.medicines.map((med, idx) => {
+          return (
+            <Group key={idx} style={{ marginLeft: '57px', marginTop: '5px' }}>
+              <Text size="sm">
+                {med.medicine.name} {med.dose} {getUnitName(med.medicine.unit)} {med.state =="Taken"?<Badge color="darkgreen">Taken</Badge>:<Badge color="red">Forgotten</Badge>}
+              </Text>
+            </Group>
+          );
+        })}
+      </Card>
+    );
+  });
+
+  const setDate = (value) => {
+    console.log("setDate",value)
+  }
+
+  const pages = [
+    {
+      value: 'Medicin',
+      description: <Group>{allPillCards}</Group>,
+    },
+    {
+      value: 'History',
+      description: 
+      <>
+        <DatePickerInput
+          type="range"
+          label="Pick dates range"
+          placeholder="Pick dates range"
+          value={[historyStart, historyEnd]}
+          onChange={(value) => setDate(value)}
+        />
+        <Group>{historyGroupedPillCards}</Group>
+      </>,
+    },
+    {
+      value: 'Plan for next week',
+      description: <Group>{groupedPillCards}</Group>,
+    },
+  ];
+
+  const page = pages.map((item) => (
+    <Accordion.Item key={item.value} value={item.value}>
+      <Accordion.Control>{item.value}</Accordion.Control>
+      <Accordion.Panel>{item.description}</Accordion.Panel>
+    </Accordion.Item>
+  ));
+
   return (
-    <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900 }} mx="auto" mt={50}>
+    <Box maw={{ base: 350, xxs: 350, xs: 350, sm: 650, md: 950, lg: 950, xl: 950 }} mx="auto" mt={50}>
       <Button mt={-130} mb={-40} ml={-20} onClick={() => (window.location.replace("/Home"))} leftSection={<IconArrowBackUp size={14} />} variant="transparent">
         Home
       </Button>
@@ -340,13 +505,22 @@ function Pilltaker() {
             <Group justify="flex-end" gap="xs">
               {/*<AlarmMedicine />*/}
               <CreateMedicine />
+              <IconSettings size={40}/>
             </Group>
           </Group>
         </Box>
+        <ScrollArea offsetScrollbars type="auto" w={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900 }} h={190}>
+          <Box w={454 * groupedPillCards.length}>
+
+            <Group>
+              {groupedPillCards}
+            </Group>
+          </Box>
+        </ScrollArea>
         <Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
-        {allPillCards}
-        {allPillCards<=0?null:<Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }} ></Box>}
-        {groupedPillCards}
+        <Accordion defaultValue="Medicin" w='100%'>
+          {page}
+        </Accordion>
       </Grid>
       <Modal
         centered

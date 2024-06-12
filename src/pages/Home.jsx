@@ -9,6 +9,9 @@ import { UserContext } from '../helpers/UserContext';
 
 import Errors from '../components/Alerts/Errors';
 
+/* import axios from "axios";
+const mainUrl = import.meta.env.VITE_API_URL; */
+
 function Home() {
   const {
     isLoading: MedsTakersPending,
@@ -29,18 +32,14 @@ function Home() {
   console.log("UserContext",user)
   const [future] = useState(false);
 /*
-  const {
-    data: Device
-  } = useAxiosFetch(`device/getByCode/ltcpi`);
-
-  console.log(Device)
+  MedsTaker.device===null? null:let Device = await axios.get(`${mainUrl}device/getById/${MedsTaker.device}`)
   */
 
   const addMedsTakerCart = <CreateMedsTaker refreshData={refreshData}></CreateMedsTaker>
   const medsTakersCarts = MedsTakers?.map((MedsTaker) => (
-    <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={MedsTaker.phone_number[0] === '5'/* unpaired */?null:"/pilltaker?medstaker="+MedsTaker._id}>
+    <Card w='290' h='200' mt={20} radius={10} key={MedsTaker._id} style={{padding:'2px 23px 10px 35px', justifyContent:'right'}} withBorder={true} shadow="sm" component="a" href={MedsTaker.device === null/* unpaired */?null:"/pilltaker?medstaker="+MedsTaker._id}>
       <Group justify="end" mt="md" mb="xs">
-        {(MedsTaker.phone_country_code === '420'?<Box w={10} h={20}></Box>:<IconBatteryOff style={{color: 'red'}}/>)}
+        {(MedsTaker.phone_country_code === '420'/* Device.battery<20 */?<Box w={10} h={20}></Box>:<IconBatteryOff style={{color: 'red'}}/>)}
         {(future === true && MedsTaker.phone_number[0] === '1' ? <Badge>Taken</Badge>
           : future === true && MedsTaker.phone_number[0] === '9' ? <Badge variant='light'>Reminded</Badge>
           : future === true && MedsTaker.phone_number[0] === '5' ? <Badge color='red'>Forgoten</Badge>
@@ -58,7 +57,7 @@ function Home() {
           <Box w={10} h={40} bg={"linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"}></Box>
         </Group>
       </Group>
-      {MedsTaker.phone_number[0] === '5'?<Overlay center color="#000" backgroundOpacity={0.7} blur={5} onClick={() =>
+      {MedsTaker.device === null?<Overlay center color="#000" backgroundOpacity={0.7} blur={5} onClick={() =>
           notifications.show({
             title: `pair device ${MedsTaker._id}`,
             message: 'It is default blue',
