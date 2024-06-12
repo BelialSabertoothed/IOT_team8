@@ -52,7 +52,7 @@ function PairMedsTaker(props) {
     <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
     <Group>
       <Box></Box>
-      <Button type="submit">Update</Button>
+      <Button type="submit">Pair</Button>
     </Group>
   </Group>
 </form>
