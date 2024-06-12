@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Grid, Box, Text, Title, useMantineTheme, Group, Card, Button, Stack, Flex, Checkbox, Modal, Badge,
-  ScrollArea, Accordion
+  ScrollArea, Accordion, Space
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { IconSettings, IconPill, IconArrowBackUp, IconPlus } from '@tabler/icons-react'
@@ -14,6 +14,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import UpdateMedsTaker from '../components/MedsTaker/updateMedsTaker';
 
 
 import { RRule } from 'rrule'
@@ -264,7 +265,6 @@ function Pilltaker() {
       </Card>
     );
   });
- 
   return (
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900 }} mx="auto" mt={50}>
       <Button mt={-130} mb={-40} ml={-20} onClick={() => (window.location.replace("/Home"))} leftSection={<IconArrowBackUp size={14} />} variant="transparent">
@@ -277,14 +277,14 @@ function Pilltaker() {
             <Group justify="flex-end" gap="xs">
               {/*<AlarmMedicine />*/}
               <CreateMedicine />
-              <IconSettings size={40}/>
+              <UpdateMedsTaker medsTakerId={medsTakerID} /* medsTakerPhoneNum={MedsTaker?.phone_number} medsTakerPhoneCC={MedsTaker?.phone_country_code} *//>
             </Group>
           </Group>
         </Box>
         <Box w='100%' h='1px' mt={30} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
         <Group>{allPillCards}</Group>
       </Grid>
-      <Box w='100%' h='1px' mt={50} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
+      {(Medicine)?.length>0?<><Box w='100%' h='1px' mt={50} mb={30} style={{ backgroundColor: theme.colors.gray[4] }}></Box>
       <FullCalendar
         plugins={[ dayGridPlugin, timeGridPlugin, listPlugin ]}
         headerToolbar={{
@@ -295,6 +295,7 @@ function Pilltaker() {
         initialView='listWeek'
         events={events}
       />
+      <Space h="xl"/></>:null}
       <Modal  centered opened={modalOpened} onClose={() => setModalOpened(false)}>
         <Title order={2} align="center" mb="md">Confirm Dose Refill</Title>
         <Stack spacing="md" align="center">
