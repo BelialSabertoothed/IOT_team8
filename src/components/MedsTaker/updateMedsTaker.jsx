@@ -18,7 +18,9 @@ const prep_country_code = [
 ];
 
 function UpdateMedsTaker(props) {
-    let medstakerId = props.medstakerId
+  console.log(`medstakerid${props.medsTakerId}`)
+  /* props.medsTaker.map((MedsTaker) => MedsTaker.name) */
+  console.log(props.medsTaker)
     console.log(props)
   const [open, setOpen] = useState(false);
   const form = useForm({    
