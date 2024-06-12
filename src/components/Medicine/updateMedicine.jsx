@@ -102,6 +102,7 @@ function UpdateMedicine(props) {
     <Input
       rightSectionWidth={28}
       disabled
+      mr={20}
       mt={0}
       styles={{
         input: {
@@ -275,7 +276,7 @@ function UpdateMedicine(props) {
                           <Select
                             description="time"
                             allowDeselect={false}
-                            defaultValue={getString(props.reminder[index].recurrenceRule.byhour[0])}
+                            defaultValue={getString(props.reminder[index]?.recurrenceRule.byhour[0]??'12')}
                             mr={-10}
                             mt={-5}
                             w={65}
@@ -286,7 +287,7 @@ function UpdateMedicine(props) {
                           <div style={{marginTop: '15px'}}>:</div>
                           <Select
                             allowDeselect={false}
-                            defaultValue={getString(props.reminder[index].recurrenceRule.byminute[0])}
+                            defaultValue={getString(props.reminder[index]?.recurrenceRule.byminute[0]??'30')}
                             ml={-10}
                             mt={15}
                             w={65}
@@ -302,9 +303,9 @@ function UpdateMedicine(props) {
                             withAsterisk
                             isAllowed={(value) => validateAmound(value)}
                             allowDecimal={false}
-                            defaultValue={props.reminder[index].dose}
+                            defaultValue={props.reminder[index]?.dose??1}
                             rightSection={amoundUnit}
-                            rightSectionWidth={92}
+                            rightSectionWidth={72}
                             min={1}
                             max={255}
                             onChange={(value) => handleAmoundChange(value, index)}
