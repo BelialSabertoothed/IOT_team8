@@ -38,7 +38,7 @@ function UpdateMedicine(props) {
     content.medsTaker=medsTakerID
     content.reminder=cards
     content.history=[]
-    console.log("medicine create request:",content)
+    console.log("medicine update request:",content)
     const result = await sendToServer(`/medicine/update/`+props.medicine._id, content);
     if (result) {
       close()
@@ -210,7 +210,7 @@ function UpdateMedicine(props) {
   const [step, setStep] = useState(0);
   return (
     <>
-      <Modal size={'lg'} opened={opened} onClose={close} title="Create Medicine" centered>
+      <Modal size={'lg'} opened={opened} onClose={close} title="Update Medicine" centered>
       <Box maw={370} mx="auto">
           <Stepper active={step} onStepClick={setStep} allowNextStepsSelect={false}>
             <Stepper.Step label="Medicine" description="Add informations">
@@ -339,7 +339,7 @@ function UpdateMedicine(props) {
                 <form onSubmit={form.onSubmit((values) => validateDaysAndSubmit(values))}>
                 <Group justify="space-between" mt="md">
                   <Button variant="default" mb={40} onClick={() => setStep(0)}>Back</Button>
-                  <Button type="submit" mb={40}>Create</Button>
+                  <Button type="submit" mb={40}>Update</Button>
                 </Group> 
               </form> 
             </Stepper.Step>
