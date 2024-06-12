@@ -127,7 +127,7 @@ function Register() {
         />
         <TextInput
             withAsterisk
-            label="Phone number of meds taker"
+            label="Phone number"
             leftSection={selectPhone}
             leftSectionWidth={110}
             placeholder="000 000 000"

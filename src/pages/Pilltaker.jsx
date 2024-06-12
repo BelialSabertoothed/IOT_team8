@@ -277,7 +277,7 @@ function Pilltaker() {
             <Group justify="flex-end" gap="xs">
               {/*<AlarmMedicine />*/}
               <CreateMedicine />
-              <UpdateMedsTaker medsTakerId={medsTakerID} /* medsTakerPhoneNum={MedsTaker?.phone_number} medsTakerPhoneCC={MedsTaker?.phone_country_code} *//>
+              <UpdateMedsTaker medsTaker={MedsTaker !== null ?(MedsTaker):''}/>
             </Group>
           </Group>
         </Box>
