@@ -348,7 +348,7 @@ function UpdateMedicine(props) {
       </Modal>
       <IconSettings
         size={20}
-        style={{ cursor: 'pointer', position: 'relative', top: '-10px' }}
+        style={{ cursor: 'pointer', position: 'relative'}}
         component="button" 
         onClick={open} 
       />
