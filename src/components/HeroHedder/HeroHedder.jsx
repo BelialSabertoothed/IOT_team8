@@ -65,7 +65,7 @@ export function HeroHedder() {
         </div>
         <Image
           visibleFrom="md"
-          src={"../../pictures/pills4u2.png"}
+          src={"/pills4u2.png"}
           h={400}
           w={500}
           fit="contain"
