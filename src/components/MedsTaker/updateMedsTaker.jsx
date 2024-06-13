@@ -18,28 +18,27 @@ const prep_country_code = [
 ];
 
 function UpdateMedsTaker(props) {
-  console.log(`medstakerid${props.medsTakerId}`)
-  /* props.medsTaker.map((MedsTaker) => MedsTaker.name) */
-  console.log(props.medsTaker)
-    console.log(props)
+  let medsTaker = (props.medsTaker)
   const [open, setOpen] = useState(false);
-  const form = useForm({    
+  const form = useForm({ 
+    mode: 'uncontrolled',  
     initialValues: {
-      name: null,
-      phone_country_code: null,
-      phone_number: null
+      _id: medsTaker._id,
+      name: medsTaker.name,
+      phone_country_code: medsTaker.phone_country_code,
+      phone_number: medsTaker.phone_number
     },
 
     validate: {
       name: (value) => (/[a-z]/.test(value) ? null : 'Requested'),
-      phone_country_code: (value) => (/[0-9]/.test(value) ? null : 'Requested'),
-      phone_number: (value) => (value === null ?null:(/[0-9]{3}\s[0-9]{3}\s[0-9]{3}|[0-9]{9}/.test(value) ? null : 'Wrong number')),
+      phone_country_code: (value) => (value === '' || value === undefined ?null:(/[0-9]/.test(value) ? null : 'Requested')),
+      phone_number: (value) => (value === '' || value === undefined ?null:(/[0-9]{3}\s[0-9]{3}\s[0-9]{3}|[0-9]{9}/.test(value) ? null : 'Wrong number')),
     },
   });
 
   async function handlSubmit(content){
-    (content.phone_number=== '' ?  (delete content.phone_country_code, delete content.phone_number):null)
-    console.log(content)
+    //((content.phone_number=== '' || content.phone_number=== undefined ) && (content.phone_country_code === '' || content.phone_country_code=== undefined )?  (delete content.phone_country_code, delete content.phone_number):null)
+    //(content.phone_number!== '' || content.phone_number=== undefined && content.phone_country_code === '' || content.phone_country_code=== undefined ?  content.phone_country_code = '420':null)
     /* const Device = await axios.get(`${mainUrl}/device/getByCode/${content.device}`, { withCredentials: true })
     content.device=`${(Device.data)._id}` */
 
@@ -69,11 +68,7 @@ function UpdateMedsTaker(props) {
     />
   );
 
-  const [step, setStep] = useState(0);
-  const nextStep = () => setStep((currentStep) => (currentStep < 1 ? currentStep + 1 : currentStep));
-  const prevStep = () => setStep((currentStep) => (currentStep > 0 ? currentStep - 1 : currentStep));
-
-  let MedsTakerInfo = <form>
+  let MedsTakerInfo = <form onSubmit={form.onSubmit((values) => handlSubmit(values))}>
   <TextInput
       mt={40}
       withAsterisk
