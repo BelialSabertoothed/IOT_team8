@@ -271,12 +271,10 @@ function Pilltaker() {
             variant="filled"
             color={isRefillNeeded ? 'gray' : /* canBeTaken ? */ 'purple' /* : 'black' */}
             onClick={() => /* isRefillNeeded ?  */handlePillClick(medicine)/*   : canBeTaken ? takePill() : null */}
+            /* rightSection={<IconDownload size={14} />} */
           >
             {isRefillNeeded ? 'Refill Dose' : /* canBeTaken ? 'Take Medicine' : */ <Group justify="space-between"><div>Doses left: {medicine.count} {unitName}</div>
-            <IconPlus //TbPill
-                size={20}
-                style={{marginLeft: '40px'}}
-              />
+            <IconPlus size={20}/>
               </Group>/* 'Next on '+ nextDose.time.toUTCString().slice(0, 22) */}
           </Button>
         </Flex>
