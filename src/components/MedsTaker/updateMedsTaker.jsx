@@ -85,8 +85,11 @@ function UpdateMedsTaker(props) {
       {...form.getInputProps('phone_number')}
   />
   <Group mb={80} mt={60} justify="space-between">
-    <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
-    <Button type="submit">Update</Button>
+    <Button color='red' >Deleate</Button>
+    <Group>
+      <Button variant="light" onClick={() => setOpen(false)}>Cancel</Button>
+      <Button type="submit">Update</Button>
+    </Group>
   </Group>
 </form>
 
