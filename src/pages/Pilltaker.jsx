@@ -4,7 +4,7 @@ import {
   ScrollArea, Accordion, Space
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { IconSettings, IconPill, IconArrowBackUp, IconPlus } from '@tabler/icons-react'
+import { IconSettings, IconPill, IconArrowBackUp, IconPlus, IconTrash  } from '@tabler/icons-react'
 import CreateMedicine from '../components/Medicine/createMedicine';
 import UpdateMedicine from '../components/Medicine/updateMedicine';
 import AlarmMedicine from '../components/Medicine/alarmMedicine';
@@ -24,7 +24,6 @@ function Pilltaker() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const medsTakerID = urlParams.get('medstaker');
-  console.log("medsTaker id:", medsTakerID);
   const {
     isLoading: MedicinePending,
     data: Medicine,
@@ -49,15 +48,14 @@ function Pilltaker() {
     errorMessage: UnitsErrorMessage,
     refetch: UnitsRefresh
   } = useAxiosFetch(`/unit/list`);
-  const [modalOpened, setModalOpened] = useState(false);           
+
+  const [modalOpened, setModalOpened] = useState(false);    
+  const [modalOpened2, setModalOpened2] = useState(false);        
   const [selectedMedicine, setSelectedMedicine] = useState(null);   
   const [events, setEvents] = useState([])
-  console.log("medsTaker:", MedsTaker);
-  
 
   useEffect(() => {
     if (Medicine) {
-      console.log("Medicine data loaded:", Medicine);
       const events = GetEvents(Medicine);
       setEvents(events);
     }
@@ -72,9 +70,7 @@ function Pilltaker() {
     let now = new Date()
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset()) 
     const ISOnow = now.toISOString()
-    console.log("ISOnow",ISOnow)
     let arreyNextMedicine = []
-    console.log("events medicine:",medicines)
     medicines.forEach(medicine => {
       const unitName = getUnitName(medicine.unit)
       medicine.reminder.forEach(element => {
@@ -96,8 +92,11 @@ function Pilltaker() {
           state:element.state, backgroundColor: element.state== "Taken"?'green': element.state=='Forgotten'?'red':'purple'})
         }
         else {
-          const index = arreyNextMedicine.indexOf((item) => 
-            (parseISOString(item.date).valueOf() === parseISOString(element.startDate).valueOf()) && 
+          let time = parseISOString(element.startDate)
+          time.setMinutes(time.getMinutes() + time.getTimezoneOffset()) 
+          const index = arreyNextMedicine.findIndex((item) => 
+            (parseISOString(item.date).valueOf() >= parseISOString(time.toISOString()).valueOf()-10000) && 
+            (parseISOString(item.date).valueOf() <= parseISOString(time.toISOString()).valueOf()+10000) && 
             (item.title === medicine.name+' '+element.dose+' '+unitName))
           if(index != -1){
             arreyNextMedicine[index].state = element.state
@@ -115,6 +114,11 @@ function Pilltaker() {
     setModalOpened(true);
   };
 
+  const handleDeleteClick = (medicine) => {     
+    setSelectedMedicine(medicine);
+    setModalOpened2(true);
+  };
+
   async function handleConfirmAddDose() {        
     if (selectedMedicine) {
       selectedMedicine.count += selectedMedicine.addPerRefill;
@@ -124,7 +128,6 @@ function Pilltaker() {
         count: selectedMedicine.count,
         reminder: translatedReminder
       }
-      console.log("medicine ubdate request:",request)
       const result = await sendToServer(`/medicine/update/`+id, request);
       if (result) {
         setModalOpened(false);
@@ -136,8 +139,23 @@ function Pilltaker() {
     }
   };
 
-  const handleCancleAddDose = () => {             
+  async function handleDelete() {        
+    if (selectedMedicine) {
+      const id = selectedMedicine._id      
+      const result = await sendToServer(`/medicine/delete/`+id);
+      if (result) {
+        setModalOpened(false);
+        setSelectedMedicine(null);
+        location.reload()
+      }else {
+        alert('something went wrong')
+      }
+    }
+  };
+
+  const handleCancle = () => {             
     setModalOpened(false);
+    setModalOpened2(false);
     setSelectedMedicine(null);
   } 
   
@@ -215,7 +233,6 @@ function Pilltaker() {
     const nextDose = getNextMedicineTime(medicine.reminder)[0]
     const isRefillNeeded = medicine.count < nextDose.dose;
     const dataText = formatReminderTimes(medicine.reminder, medicine.unit)
-    console.log(dataText)
 
     let dates = dataText.map((element, index) => (<Text size="sm" mb={5} key={medicine._id+'_'+index}>{element}</Text>))
     
@@ -233,15 +250,16 @@ function Pilltaker() {
       >
         <Flex direction="column" justify="space-between" h="100%">
           <Stack spacing="lg">
-            <Group position="apart">
+            <Group justify="space-between">
               <Group>
-                <Box w={205} mt={-5}>
+                <Box w={165} mt={-5}>
                   <Title order={4} textWrap="nowrap" lineClamp={2}> {medicine.name} </Title>
                 </Box>
-                <Box w={10} mt={-10} h={30} ml={-25} bg={isRefillNeeded ?"linear-gradient(270deg, rgba(233, 236, 239) 0%, rgba(0, 0, 0, 0) 100%)":"linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"}></Box>
-              </Group>
-              <Group style={{ marginLeft: 'auto' }}>
+                <Box w={10} mt={-10} h={30} ml={-45} bg={isRefillNeeded ?"linear-gradient(270deg, rgba(233, 236, 239) 0%, rgba(0, 0, 0, 0) 100%)":"linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 0) 100%)"}></Box>
+              </Group> 
+              <Group>
                 <UpdateMedicine medicine={medicine} reminder={translateReminder(medicine.reminder)}/>
+                <IconTrash component="button" size={20} style={{ cursor: 'pointer', position: 'relative' }}onClick={() => handleDeleteClick(medicine)} />
               </Group>
             </Group>
             <ScrollArea /* bg={'red'} */ h={80} mb={1} type="auto">
@@ -263,6 +281,12 @@ function Pilltaker() {
       </Card>
     );
   });
+
+  const validUpdate = (MedsTaker) => {
+    if(MedsTaker) return (<UpdateMedsTaker medsTaker={MedsTaker}/>)
+  }
+  
+
   return (
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900 }} mx="auto" mt={50}>
       <Button mt={-130} mb={-40} ml={-20} onClick={() => (window.location.replace("/Home"))} leftSection={<IconArrowBackUp size={14} />} variant="transparent">
@@ -275,7 +299,7 @@ function Pilltaker() {
             <Group justify="flex-end" gap="xs">
               {/*<AlarmMedicine />*/}
               <CreateMedicine />
-              <UpdateMedsTaker medsTaker={MedsTaker !== null ?(MedsTaker):''}/>
+              {validUpdate(MedsTaker)}
             </Group>
           </Group>
         </Box>
@@ -290,20 +314,36 @@ function Pilltaker() {
           center: 'title',
           right: 'timeGridWeek,timeGridDay,listWeek',
         }}
+        slotMaxTime= {"21:00:00"}
+        slotMinTime= {"6:00:00"}
         initialView='listWeek'
+        allDaySlot={false}
         events={events}
       />
       <Space h="xl"/></>:null}
+
       <Modal  centered opened={modalOpened} onClose={() => setModalOpened(false)}>
         <Title order={2} align="center" mb="md">Confirm Dose Refill</Title>
         <Stack spacing="md" align="center">
           <Text align="center">Are you sure you want to add {selectedMedicine?.addPerRefill} doses to {selectedMedicine?.name}?</Text>
           <Group position="center">
             <Button onClick={() => handleConfirmAddDose()}>Confirm</Button>
-            <Button variant="outline" onClick={() => handleCancleAddDose()}>Cancel</Button>
+            <Button variant="outline" onClick={() => handleCancle()}>Cancel</Button>
           </Group>
         </Stack>
       </Modal>
+
+      <Modal  centered opened={modalOpened2} onClose={() => setModalOpened2(false)}>
+        <Title order={2} align="center" mb="md">Confirm Delete</Title>
+        <Stack spacing="md" align="center">
+          <Text align="center">Are you sure you want to delete medicine {selectedMedicine?.name} with id {selectedMedicine?._id}?</Text>
+          <Group position="center">
+            <Button onClick={() => handleDelete()}>Confirm</Button>
+            <Button variant="outline" onClick={() => handleCancle()}>Cancel</Button>
+          </Group>
+        </Stack>
+      </Modal>
+
     </Box>
   );
 }
