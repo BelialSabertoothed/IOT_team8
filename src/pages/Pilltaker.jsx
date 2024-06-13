@@ -53,7 +53,6 @@ function Pilltaker() {
   const [modalOpened2, setModalOpened2] = useState(false);        
   const [selectedMedicine, setSelectedMedicine] = useState(null);   
   const [events, setEvents] = useState([])
-  
 
   useEffect(() => {
     if (Medicine) {
@@ -288,6 +287,7 @@ function Pilltaker() {
   const validUpdate = (MedsTaker) => {
     if(MedsTaker) return (<UpdateMedsTaker medsTaker={MedsTaker}/>)
   }
+  
 
   return (
     <Box maw={{ base: 300, xxs: 300, xs: 300, sm: 600, md: 900, lg: 900, xl: 900 }} mx="auto" mt={50}>
@@ -316,6 +316,8 @@ function Pilltaker() {
           center: 'title',
           right: 'timeGridWeek,timeGridDay,listWeek',
         }}
+        slotMaxTime= {"21:00:00"}
+        slotMinTime= {"6:00:00"}
         initialView='listWeek'
         allDaySlot={false}
         events={events}
