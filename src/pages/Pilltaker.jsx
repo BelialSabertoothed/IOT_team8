@@ -336,7 +336,7 @@ function Pilltaker() {
       <Modal  centered opened={modalOpened2} onClose={() => setModalOpened2(false)}>
         <Title order={2} align="center" mb="md">Confirm Delete</Title>
         <Stack spacing="md" align="center">
-          <Text align="center">Are you sure you want to delete medicine {selectedMedicine?.name} with id {selectedMedicine?._id}?</Text>
+          <Text align="center">Are you sure you want to delete medicine {selectedMedicine?.name}?</Text>
           <Group position="center">
             <Button onClick={() => handleDelete()}>Confirm</Button>
             <Button variant="outline" onClick={() => handleCancle()}>Cancel</Button>
