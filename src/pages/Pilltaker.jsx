@@ -293,7 +293,7 @@ function Pilltaker() {
         Home
       </Button>
       <Grid justify="space-between">
-        <Box w={{ base: '440px', xxs: '440px', xs: '440px', sm: '440px', md: '892px', lg: '892px', xl: '892px' }} h='50'>
+        <Box w={{ base: '440px', xxs: '440px', xs: '440px', sm: '640px', md: '892px', lg: '892px', xl: '892px' }} h='50'>
           <Group justify="space-between">
             <Title>{MedsTaker?.name ? MedsTaker.name : "MedsTaker.name"}</Title>
             <Group justify="flex-end" gap="xs">
